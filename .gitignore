@@ -19,3 +19,6 @@ pnpm-debug.log*
 
 # macOS-specific files
 .DS_Store
+
+# new benchmark data submitted via Github action
+performance/new-data.json

@@ -7,9 +7,13 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "add-benchmark": "ts-node --esm ./scripts/add-benchmark.ts"
   },
   "dependencies": {
     "astro": "^2.3.0"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.1"
   }
 }
