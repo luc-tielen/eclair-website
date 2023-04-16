@@ -1,0 +1,69 @@
+---
+import LineChart from "../components/LineChart"
+import { Line } from "react-chartjs-2"
+import benchmarkData from "../../performance/historical-data.json"
+
+const benchDataByReportName = {};
+
+benchmarkData.forEach((datapoint) => {
+	const date = datapoint.date;
+	const commitHash = datapoint.commitHash;
+	datapoint.results.forEach((result) => {
+		const reportName = result.reportName;
+		const measurement = {
+			date,
+			commitHash,
+			values: result.values
+		};
+		benchDataByReportName[reportName] =
+			benchDataByReportName[reportName]
+			? benchDataByReportName[reportName].concat(measurement)
+			: [measurement];
+	});
+});
+
+const benchData = benchmarkData.map(data => data.results[0].values.estimated)
+
+// TODO https://codepen.io/kurkle/pen/QWwOOBa?editors=1010
+
+const toChartData = (reportName, benchData) => {
+	return {
+		labels: benchData.map(data => data.date),
+		datasets: [
+			{
+				data: benchData.map(point => point.values.estimated),
+				borderColor: 'rgb(255, 99, 132)',
+				backgroundColor: 'rgba(255, 99, 132, 0.5)'
+			},
+			{
+				data: benchData.map(point => point.values.lowerBound),
+				borderColor: 'rgb(255, 99, 132)',
+				backgroundColor: 'rgba(255, 99, 132, 0.5)'
+			},
+			{
+				data: benchData.map(point => point.values.upperBound),
+				borderColor: 'rgb(255, 99, 132)',
+				backgroundColor: 'rgba(255, 99, 132, 0.5)'
+			},
+		]
+	};
+};
+
+console.log(benchDataByReportName)
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Astro</title>
+	</head>
+	<body>
+		<h1 class="text-xl">Performance tracking</h1>
+		{Object.entries(benchDataByReportName).map(([reportName, benchData], i) => (
+			<LineChart key={`chart-${i}`} data={toChartData(reportName, benchData)} client:only/>
+		))}
+	</body>
+</html>
