@@ -22,7 +22,7 @@ benchmarkData.forEach((datapoint) => {
 });
 
 const toChartData = (reportName, benchData) => ({
-  labels: benchData.map((data) => data.date),
+  labels: benchData.map((data) => `${data.date} - ${data.commitHash}`),
   datasets: [
     {
       type: "line",

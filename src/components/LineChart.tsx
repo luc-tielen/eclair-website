@@ -33,6 +33,14 @@ const options = (title: string) => ({
     mode: "index" as const,
   },
   scales: {
+    x: {
+      ticks: {
+        callback: function (idx: any) {
+          const label = (this as any).getLabelForValue(idx);
+          return label.substring(0, label.indexOf(" "));
+        },
+      },
+    },
     y: {
       title: {
         display: true,
