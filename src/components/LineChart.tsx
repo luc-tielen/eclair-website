@@ -35,7 +35,7 @@ const options = (title: string) => ({
   scales: {
     x: {
       ticks: {
-        callback: function (idx: any) {
+        callback: function(idx: any) {
           const label = (this as any).getLabelForValue(idx);
           return label.substring(0, label.indexOf(" "));
         },
@@ -71,6 +71,17 @@ const options = (title: string) => ({
         label: () => "",
       },
     },
+  },
+  onClick: (_event: any, elements: any, chart: any) => {
+    if (elements[0]) {
+      const i = elements[0].index;
+      const label = chart.data.labels[i];
+      const commitHash = label.substring(label.indexOf("-") + 2);
+      window.open(
+        `https://github.com/luc-tielen/eclair-lang/commit/${commitHash}`,
+        "_blank"
+      );
+    }
   },
 });
 
