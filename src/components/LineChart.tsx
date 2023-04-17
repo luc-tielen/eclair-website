@@ -16,10 +16,13 @@ interface LineChartProps {
   data: {
     labels: string[];
     datasets: {
-      label: string;
+      type: "line";
       data: number[];
       borderColor: string;
-      backgroundColor: string;
+      backgroundColor?: string;
+      pointRadius?: number;
+      pointBackgroundColor?: string;
+      fill?: number;
     }[];
   };
 }
@@ -27,7 +30,7 @@ interface LineChartProps {
 const options = (title: string) => ({
   responsive: true,
   maintainAspectRatio: false,
-  // animation: false, TODO turn off
+  animation: false,
   interaction: {
     intersect: false,
     mode: "index" as const,
@@ -105,7 +108,7 @@ const LineChart = ({ data, title }: LineChartProps) => {
 
   return (
     <div className="w-screen h-[200px] p-4">
-      <Line data={data} options={options(title)} />
+      <Line data={data} options={options(title) as any} />
     </div>
   );
 };

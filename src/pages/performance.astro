@@ -1,9 +1,20 @@
 ---
 import LineChart from "../components/LineChart";
-import { Line } from "react-chartjs-2";
 import benchmarkData from "../../performance/historical-data.json";
 
-const benchDataByReportName = {};
+interface DataPoint {
+  estimated: number;
+  lowerBound: number;
+  upperBound: number;
+}
+
+interface BenchData {
+  date: string;
+  commitHash: string;
+  values: DataPoint;
+};
+
+const benchDataByReportName: { [key: string]: BenchData[] } = {};
 
 benchmarkData.forEach((datapoint) => {
   const date = datapoint.date;
@@ -15,23 +26,24 @@ benchmarkData.forEach((datapoint) => {
       commitHash,
       values: result.values,
     };
-    benchDataByReportName[reportName] = benchDataByReportName[reportName]
-      ? benchDataByReportName[reportName].concat(measurement)
-      : [measurement];
+
+    benchDataByReportName[reportName] = (benchDataByReportName[reportName] || []).concat(measurement)
   });
 });
 
-const toChartData = (reportName, benchData) => ({
+const toChartData = (benchData: BenchData[]) => ({
   labels: benchData.map((data) => `${data.date} - ${data.commitHash}`),
   datasets: [
     {
-      type: "line",
+      type: "line" as const,
       data: benchData.map((point) => point.values.estimated),
       borderColor: "#fcd34d",
       pointRadius: 0,
+      backgroundColor: "rgba(253, 224, 71, 0.2)",
+      pointBackgroundColor: "transparent",
     },
     {
-      type: "line",
+      type: "line" as const,
       data: benchData.map((point) => point.values.lowerBound),
       backgroundColor: "rgba(253, 224, 71, 0.2)",
       borderColor: "transparent",
@@ -40,7 +52,7 @@ const toChartData = (reportName, benchData) => ({
       fill: 0,  // fill goes to line 0
     },
     {
-      type: "line",
+      type: "line" as const,
       data: benchData.map((point) => point.values.upperBound),
       backgroundColor: "rgba(253, 224, 71, 0.2)",
       borderColor: "transparent",
@@ -72,11 +84,10 @@ const toChartData = (reportName, benchData) => ({
       </p>
       {
         Object.entries(benchDataByReportName).map(
-          ([reportName, benchData], i) => (
+          ([reportName, benchData]) => (
             <LineChart
               title={reportName}
-              key={`chart-${i}`}
-              data={toChartData(reportName, benchData)}
+              data={toChartData(benchData)}
               client:only
             />
           )
