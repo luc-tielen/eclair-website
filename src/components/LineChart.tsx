@@ -38,7 +38,7 @@ const options = (title: string) => ({
   scales: {
     x: {
       ticks: {
-        callback: function(idx: any) {
+        callback: function (idx: any) {
           const label = (this as any).getLabelForValue(idx);
           return label.substring(0, label.indexOf(" "));
         },
