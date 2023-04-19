@@ -1,0 +1,41 @@
+---
+import { Icon } from "astro-icon";
+
+const { title } = Astro.props;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+	</head>
+	<body>
+		<main class="px-2">
+			<nav class="flex justify-between items-center">
+				<div class="flex items-center gap-2">
+					<a href="/">
+						<img
+							src="/logo_light.png"
+							alt="Eclair logo"
+							class="w-16"/>
+					</a>
+					<a href="/">Home</a>
+					<a href="/docs">Documentation</a>
+					<a href="/performance">Benchmarks</a>
+				</div>
+				<div class="flex gap-2">
+					<a href="https://github.com/luc-tielen/eclair-lang">
+						<Icon class="w-8 h-8" name="mdi:github"/>
+					</a>
+					<a href="https://discord.gg/wAm4csq6">
+						<Icon class="w-8 h-8" name="ic:baseline-discord"/>
+					</a>
+				</div>
+			</nav>
+			<slot/>
+		</main>
+	</body>
+</html>

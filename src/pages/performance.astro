@@ -1,4 +1,5 @@
 ---
+import MainLayout from "../layouts/main.astro";
 import LineChart from "../components/LineChart";
 import benchmarkData from "../../performance/historical-data.json";
 
@@ -65,34 +66,25 @@ const toChartData = (benchData: BenchData[]) => ({
 
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>Astro</title>
-  </head>
-  <body>
-    <main class="px-4 pt-2 flex flex-col gap-1">
-      <h1 class="text-2xl font-bold pb-2">Performance tracking</h1>
-      <p>
-        Below are a set of benchmarks used to keep track of the runtime
-        performance of Eclair. The benchmarks are part of the main repository
-        and can be found
-        <a href="https://github.com/luc-tielen/eclair-lang/blob/main/benchmarks/src/Main.hs" class="text-blue-500 visited:text-indigo-500 hover:underline">here</a>.
-      </p>
-      {
-        Object.entries(benchDataByReportName).map(
-          ([reportName, benchData]) => (
-            <LineChart
-              title={reportName}
-              data={toChartData(benchData)}
-              client:only
-            />
-          )
+<MainLayout title="Eclair benchmarks">
+  <div class="pt-4 flex flex-col gap-1">
+    <h1 class="text-2xl font-bold pb-2">Performance tracking</h1>
+    <p>
+      Below are a set of benchmarks used to keep track of the runtime
+      performance of Eclair. The benchmarks are part of the main repository
+      and can be found
+      <a href="https://github.com/luc-tielen/eclair-lang/blob/main/benchmarks/src/Main.hs" class="text-blue-500 visited:text-indigo-500 hover:underline">here</a>.
+    </p>
+    {
+      Object.entries(benchDataByReportName).map(
+        ([reportName, benchData]) => (
+          <LineChart
+            title={reportName}
+            data={toChartData(benchData)}
+            client:only
+          />
         )
-      }
-    </main>
-  </body>
-</html>
+      )
+    }
+  </div>
+</MainLayout>
