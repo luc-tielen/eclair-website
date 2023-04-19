@@ -13,18 +13,12 @@ const { title } = Astro.props;
 		<title>{title}</title>
 	</head>
 	<body>
-		<main class="px-2">
+		<main class="px-2 pt-1">
 			<nav class="flex justify-between items-center">
 				<div class="flex items-center gap-2">
-					<a href="/">
-						<img
-							src="/logo_light.png"
-							alt="Eclair logo"
-							class="w-16"/>
-					</a>
-					<a href="/">Home</a>
-					<a href="/docs">Documentation</a>
-					<a href="/performance">Benchmarks</a>
+					<a class="hover:underline" href="/">Home</a>
+					<a class="hover:underline" href="/docs">Documentation</a>
+					<a class="hover:underline" href="/performance">Benchmarks</a>
 				</div>
 				<div class="flex gap-2">
 					<a href="https://github.com/luc-tielen/eclair-lang">
