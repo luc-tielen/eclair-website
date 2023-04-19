@@ -1,20 +1,24 @@
 ---
+import { Icon } from "astro-icon";
 import MainLayout from "../layouts/main.astro";
 
-const title = "Eclair";
 ---
 
-<MainLayout title={title}>
-	<div class="md:container md:mx-auto flex flex-col sm:flex-row justify-between items-center">
-		<img
-			src="/logo_light.png"
-			alt="Eclair logo"
-			class="w-96"/>
-		<p class="text-xl">
-			A <em>lightning-fast</em> logical query language for solving complex search- and graph-based problems.
-		</p>
-	</div>
-	<div>
-
+<MainLayout title="Eclair">
+	<div class="max-w-7xl sm:mx-auto">
+		<div class="flex flex-col sm:flex-row justify-between items-center">
+			<img
+				src="/logo_light.png"
+				alt="Eclair logo"
+				class="w-96"/>
+			<div class="flex flex-col items-center sm:items-end">
+				<a class="flex items-center bg-yellow-400 hover:bg-yellow-500 font-semibold text-2xl py-2 px-4 mb-4" href="/docs/">
+					GET STARTED <Icon class="inline w-6 h-6 ml-2" name="ph:lightning-fill"/>
+				</a>
+				<p class="text-xl">
+				A <em>lightning-fast</em> logical query language for solving complex search- and graph-based problems.
+				</p>
+			</div>
+		</div>
 	</div>
 </MainLayout>

@@ -38,7 +38,7 @@ const options = (title: string) => ({
   scales: {
     x: {
       ticks: {
-        callback: function (idx: any) {
+        callback: function(idx: any) {
           const label = (this as any).getLabelForValue(idx);
           return label.substring(0, label.indexOf(" "));
         },
@@ -107,7 +107,7 @@ const LineChart = ({ data, title }: LineChartProps) => {
   if (!isRegistered) return <></>;
 
   return (
-    <div className="w-screen h-[200px] p-4">
+    <div className="w-full h-[200px] p-4">
       <Line data={data} options={options(title) as any} />
     </div>
   );
