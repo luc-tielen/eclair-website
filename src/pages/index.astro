@@ -6,7 +6,7 @@ import MainLayout from "../layouts/main.astro";
 
 <MainLayout title="Eclair">
 	<div class="max-w-7xl sm:mx-auto">
-		<div class="flex flex-col sm:flex-row justify-between items-center">
+		<div class="flex flex-col sm:flex-row justify-between items-center pb-4">
 			<img
 				src="/logo_light.png"
 				alt="Eclair logo"
@@ -18,6 +18,32 @@ import MainLayout from "../layouts/main.astro";
 				<p class="text-xl">
 				A <em>lightning-fast</em> logical query language for solving complex search- and graph-based problems.
 				</p>
+			</div>
+		</div>
+		<div>
+			<h2 class="text-3xl font-semibold pb-4">Features</h2>
+			<div class="grid sm:grid-cols-3 gap-8">
+				<div>
+					<h3 class="text-xl font-medium pb-2">Fast</h3>
+					<p>
+						Queries are compiled to native machine code or WebAssembly,
+						run 100% in-memory and are heavily optimized to achieve rapid execution times.
+					</p>
+				</div>
+				<div>
+					<h3 class="text-xl font-medium pb-2">Laser-focused</h3>
+					<p>
+						Eclair is designed specifically for executing recursive graph queries.
+						Sophisticated analyses can be written and iterated upon in minutes in the form of logical rules.
+					</p>
+				</div>
+				<div>
+					<h3 class="text-xl font-medium pb-2">Seamless integration</h3>
+					<p>
+						Other languages communicate in-process with Eclair using a minimal API.
+						Multiple bindings exist, and can be added easily.
+					</p>
+				</div>
 			</div>
 		</div>
 	</div>
