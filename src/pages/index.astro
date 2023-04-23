@@ -4,7 +4,7 @@ import { Icon } from "astro-icon";
 import MainLayout from "../layouts/main.astro";
 import CodeBlock from "../components/CodeBlock";
 
-const snippet = fs.readFileSync('./src/content/snippets/orphan_pages.eclair', {encoding: "utf-8"});
+const snippet = fs.readFileSync('./src/content/snippets/simple_transitive_closure.eclair', {encoding: "utf-8"});
 ---
 
 <MainLayout title="Eclair">
@@ -23,35 +23,50 @@ const snippet = fs.readFileSync('./src/content/snippets/orphan_pages.eclair', {e
 				</p>
 			</div>
 		</div>
-		<div class="pb-4">
+		<div class="pb-12">
 			<h2 class="text-3xl font-semibold pb-4">Features</h2>
-			<div class="grid sm:grid-cols-3 gap-8">
+			<div class="grid sm:grid-cols-3 gap-8 pb-8">
 				<div>
-					<h3 class="text-xl font-medium pb-2">Fast</h3>
+					<h3 class="text-xl font-medium pb-4">Great Performance</h3>
 					<p>
 						Queries are compiled to native machine code or WebAssembly,
 						run 100% in-memory and are heavily optimized to achieve rapid execution times.
 					</p>
 				</div>
 				<div>
-					<h3 class="text-xl font-medium pb-2">Laser-focused</h3>
+					<h3 class="text-xl font-medium pb-4">Laser-focused</h3>
 					<p>
 						Eclair is designed specifically for executing recursive graph queries.
-						Sophisticated analyses can be written and iterated upon in minutes in the form of logical rules.
+						Sophisticated analyses can be written and iterated upon in minutes.
 					</p>
 				</div>
 				<div>
-					<h3 class="text-xl font-medium pb-2">Seamless integration</h3>
+					<h3 class="text-xl font-medium pb-4">Seamless Integration</h3>
 					<p>
 						Other languages communicate in-process with Eclair using a minimal API.
-						Multiple bindings exist, and can be added easily.
+						Multiple bindings already exist; more can be added easily.
 					</p>
+				</div>
+			</div>
+			<div>
+				<h2 class="text-xl font-medium pb-4">Declarative</h2>
+				<div class="flex flex-col sm:flex-row justify-between gap-8">
+					<p class="w-full">
+						Search for results in your data by describing queries as a combination of rules and facts.
+						All low-level details are taken care of, allowing you to concentrate on the solution.
+					</p>
+					<div class="w-full">
+						<CodeBlock language="eclair" code={snippet}/>
+					</div>
 				</div>
 			</div>
 		</div>
 		<div>
-			<h2 class="text-3xl font-semibold pb-4">Examples</h2>
-			<CodeBlock language="eclair" code={snippet}/>
+			<p>
+				To learn more about Eclair, check out the
+				<a href="/docs" class="text-blue-500 visited:text-indigo-500 hover:underline">getting started guide</a>
+				or the <a href="/docs" class="text-blue-500 visited:text-indigo-500 hover:underline">language documentation</a>.
+			</p>
 		</div>
 	</div>
 </MainLayout>
