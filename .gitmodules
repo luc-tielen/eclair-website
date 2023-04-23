@@ -1,3 +1,0 @@
-[submodule "tree-sitter-highlight"]
-	path = tree-sitter-highlight
-	url = git@github.com:luc-tielen/tree-sitter-highlight
