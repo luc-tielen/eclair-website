@@ -3,10 +3,10 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "npm run prepare-deps && astro dev",
-    "start": "npm run prepare-deps && astro dev",
-    "build": "npm run prepare-deps && astro build",
-    "preview": "npm run prepare-deps && astro preview",
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "nstro build",
+    "preview": "astro preview",
     "astro": "astro",
     "add-benchmark": "ts-node --esm ./scripts/add-benchmark.ts",
     "prepare-deps": "git submodule update --init --recursive && cd tree-sitter-highlight && npm run build"
