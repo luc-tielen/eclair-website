@@ -11,11 +11,4 @@ commands. These commands can be invoked with `npm run $NAME_OF_COMMAND`
 
 ## Developer setup
 
-Run the following commands once initially.
-
-```bash
-$ git submodule update --init --recursive
-$ cd build && npm run build && cd -
-```
-
-Afterwards, you can run `npm run dev` to start working on the site.
+Run `npm run dev` to start working on the site.

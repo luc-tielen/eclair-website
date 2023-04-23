@@ -7,4 +7,7 @@ import tailwind from "@astrojs/tailwind";
 export default defineConfig({
   site: "https://eclair-lang.org",
   integrations: [react(), tailwind()],
+  vite: {
+    optimizeDeps: { exclude: ["tree-sitter-highlight"] },
+  },
 });
