@@ -1,7 +1,10 @@
 ---
+import fs from "fs";
 import { Icon } from "astro-icon";
 import MainLayout from "../layouts/main.astro";
+import CodeBlock from "../components/CodeBlock";
 
+const snippet = fs.readFileSync('./src/content/snippets/orphan_pages.eclair', {encoding: "utf-8"});
 ---
 
 <MainLayout title="Eclair">
@@ -20,7 +23,7 @@ import MainLayout from "../layouts/main.astro";
 				</p>
 			</div>
 		</div>
-		<div>
+		<div class="pb-4">
 			<h2 class="text-3xl font-semibold pb-4">Features</h2>
 			<div class="grid sm:grid-cols-3 gap-8">
 				<div>
@@ -45,6 +48,10 @@ import MainLayout from "../layouts/main.astro";
 					</p>
 				</div>
 			</div>
+		</div>
+		<div>
+			<h2 class="text-3xl font-semibold pb-4">Examples</h2>
+			<CodeBlock language="eclair" code={snippet}/>
 		</div>
 	</div>
 </MainLayout>

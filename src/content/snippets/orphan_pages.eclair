@@ -1,0 +1,15 @@
+@def page(path: string) input.
+@def link(from_page: string, to_page: string) input.
+@def reachable(from: string, to: string).
+@def orphan_page(page: string) output.
+
+reachable(from, to) :-
+  link(from, to).
+
+reachable(from, to) :-
+  link(from, next),
+  reachable(next, to).
+
+orphan_page(route) :-
+  page(route),
+  !reachable(_, route).
