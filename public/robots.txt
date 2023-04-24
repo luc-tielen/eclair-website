@@ -1,0 +1,4 @@
+User-Agent: *
+Disallow:
+
+Sitemap: https://eclair-lang.org/sitemap-index.xml
