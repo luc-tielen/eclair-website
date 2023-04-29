@@ -1,0 +1,22 @@
+---
+import { Icon } from "astro-icon";
+
+const { title } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+		<link rel="canonical" href={canonicalURL} />
+		<link rel="sitemap" href="/sitemap-index.xml">
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<script defer data-domain="eclair-lang.org" src="https://plausible.io/js/script.js"></script>
+		<title>{title}</title>
+	</head>
+	<body>
+		<slot/>
+	</body>
+</html>

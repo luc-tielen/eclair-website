@@ -21,6 +21,7 @@
     "astro": "^2.3.0",
     "astro-icon": "^0.8.0",
     "chartjs": "^0.3.24",
+    "html-escaper": "^3.0.3",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.2.0",
@@ -28,6 +29,7 @@
     "tree-sitter-highlight": "luc-tielen/tree-sitter-highlight#release"
   },
   "devDependencies": {
+    "@types/html-escaper": "^3.0.0",
     "prettier": "^2.8.7",
     "prettier-plugin-astro": "^0.8.0",
     "ts-node": "^10.9.1"

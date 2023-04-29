@@ -1,0 +1,20 @@
+---
+import TableOfContents from './TableOfContents';
+import generateToc from '../util/generate-toc';
+
+const { headings } = Astro.props;
+const overview = "Overview";
+---
+
+<aside class="flex text-xs">
+	<nav aria-label="Secondary" class="invisible sm:visible z-20 h-screen sticky top-0 pt-8 pr-16 w-36 overflow-y-auto">
+		{
+			headings && (
+				<TableOfContents
+					toc={generateToc(headings, overview)}
+					labels={{ onThisPage: "On this page" }}
+				/>
+			)
+		}
+	</nav>
+</aside>
