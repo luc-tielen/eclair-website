@@ -89,8 +89,8 @@ const TableOfContents = ({ toc, labels }: Props) => {
               d="M0 0L3 3L0 6"
               fill="none"
               stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
+              strokeWidth="1.5"
+              strokeLinecap="round"
             ></path>
           </svg>
           {unescape(text)}

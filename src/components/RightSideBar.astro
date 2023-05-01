@@ -6,8 +6,8 @@ const { headings } = Astro.props;
 const overview = "Overview";
 ---
 
-<aside class="flex text-xs">
-	<nav aria-label="Secondary" class="invisible sm:visible z-20 h-screen sticky top-0 pt-8 pr-16 w-36 overflow-y-auto">
+<aside id="right-scrollbar" class="hidden sm:flex text-xs">
+	<nav aria-label="Secondary" class="z-20 h-screen sticky top-0 pt-8 pr-8 w-48 overflow-y-auto">
 		{
 			headings && (
 				<TableOfContents
@@ -18,3 +18,16 @@ const overview = "Overview";
 		}
 	</nav>
 </aside>
+
+<style is:global>
+#right-scrollbar::-webkit-scrollbar, #right-scrollbar::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+#right-scrollbar::-webkit-scrollbar-thumb {
+	background-color: #d9d9d9;
+	border: 4px solid transparent;
+	background-clip: content-box;
+	border-radius: 10px;
+}
+</style>

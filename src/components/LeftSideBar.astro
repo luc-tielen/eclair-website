@@ -1,0 +1,57 @@
+---
+import { getCollection } from "astro:content";
+
+interface DocPage {
+  slug: string;
+  title: string;
+  // TODO add tags so pages can be grouped together based on that?
+}
+
+const docs = await getCollection("docs");
+const docPages: DocPage[] = docs.map((doc) => ({
+  slug: doc.slug,
+  title: doc.data.title
+}))
+
+---
+
+<aside class="z-20 hidden lg:block text-xs">
+  <h2 class="flex flex-col items-center pb-1 font-medium">
+    Documentation
+  </h2>
+  <ul id="left-scrollbar" class="sticky h-screen overflow-y-auto top-0 bottom-0 pt-8 pl-8 w-48 flex flex-col text-slate-700">
+    {docPages.map(docPage =>
+      <li>
+	<svg
+	  width="3"
+	  height="24"
+	  viewBox="0 -9 3 24"
+	  class="inline-block mr-2 text-slate-400 overflow-visible group-hover:text-slate-600"
+	>
+	  <path
+	    d="M0 0L3 3L0 6"
+	    fill="none"
+	    stroke="currentColor"
+	    stroke-width="1.5"
+	    stroke-linecap="round" />
+	</svg>
+	<a href={`/docs/${docPage.slug}`} class="hover:text-slate-900">
+	  {docPage.title}
+	</a>
+      </li>
+    )}
+  </ul>
+</aside>
+
+<style is:global>
+#left-scrollbar::-webkit-scrollbar, #left-scrollbar::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+#left-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #d9d9d9;
+  border: 4px solid transparent;
+  background-clip: content-box;
+  border-radius: 10px;
+}
+</style>
