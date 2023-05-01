@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
-import { Icon } from "astro-icon";
+import NavBar from "../components/NavBar.astro"
+import Footer from "../components/Footer"
 
 const { title } = Astro.props;
 ---
@@ -9,26 +10,10 @@ const { title } = Astro.props;
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<div class="mx-auto max-w-3xl flex flex-col min-h-screen">
 			<main class="pt-2 flex-grow">
-				<nav class="flex justify-between items-center">
-					<div class="flex items-center gap-8 font-medium uppercase">
-						<a class="hover:underline" href="/">Home</a>
-						<a class="hover:underline" href="/docs">Docs</a>
-						<a class="hover:underline" href="/performance">Benchmarks</a>
-					</div>
-					<div class="flex gap-2">
-						<a href="https://github.com/luc-tielen/eclair-lang">
-							<Icon class="w-8 h-8" name="mdi:github"/>
-						</a>
-						<a href="https://discord.gg/mC2arUrxKg">
-							<Icon class="w-8 h-8" name="ic:baseline-discord"/>
-						</a>
-					</div>
-				</nav>
+				<NavBar/>
 				<slot/>
 			</main>
-			<footer class="pt-24 pb-2">
-				<span class="flex items-center justify-center text-sm">&copy; 2021-{new Date().getFullYear()} Luc Tielen</span>
-			</footer>
+			<Footer/>
 		</div>
 	</div>
 </BaseLayout>
