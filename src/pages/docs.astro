@@ -1,11 +1,53 @@
 ---
-import MainLayout from "../layouts/MainLayout.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import LeftSideBar from "../components/LeftSideBar.astro";
+import NavBar from "../components/NavBar.astro"
+import Footer from "../components/Footer"
+import Link from "../components/Link";
 
-const title = "Eclair documentation";
+const title = "Eclair docs";
 ---
 
-<MainLayout title={title}>
-	<div class="md:container md:mx-auto flex flex-col sm:flex-row justify-between items-center">
-		<p class="pt-4">Coming soon!</p>
+<BaseLayout title={title}>
+  <div class="flex flex-col min-h-screen">
+    <header class="pt-2">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-3xl flex flex-col">
+          <NavBar/>
+        </div>
+      </div>
+    </header>
+	<div class="flex-grow">
+		<div class="flex flex-row pt-8">
+			<LeftSideBar/>
+			<div class="flex-grow px-12 flex flex-col items-center">
+				<article class="prose">
+					<h1 id="overview">Documentation</h1>
+					<p>
+						Welcome to the documentation for the Eclair programming language!
+						Eclair is a logical query language that compiles to LLVM IR, focused on quickly solving complex search- and graph-based problems.
+					</p>
+					<p>
+						The sidebar on the left contains an overview of all the different topics.
+						If you're new to Eclair, the links below are a great starting point.
+						Still have questions after reading the docs?
+						Ask a question on our <Link href="https://discord.gg/mC2arUrxKg">Discord server</Link>!
+					</p>
+					<h2>Getting started</h2>
+					<ul>
+						<li>
+							<Link href="/docs/getting-started">Getting started guides</Link>
+							<p>A tour of the Eclair language, and guides to start using it from your programming language of choice.</p>
+						</li>
+						<li>
+							<Link href="/docs/faq">Frequently Asked Questions</Link>
+							<p>Answers to commonly asked questions about Eclair.</p>
+						</li>
+					</ul>
+				</article>
+				<Footer/>
+			</div>
+			<div class="sm:w-48"/>
+		</div>
 	</div>
-</MainLayout>
+</BaseLayout>
