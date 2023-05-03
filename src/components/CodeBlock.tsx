@@ -1,6 +1,13 @@
-import { highlightHast } from "tree-sitter-highlight";
+import { Language, highlightHast } from "tree-sitter-highlight";
 
-const SUPPORTED_LANGUAGES = ["eclair"] as const;
+const SUPPORTED_LANGUAGES = [
+  "eclair",
+  "haskell",
+  "bash",
+  "c",
+  "llvm",
+  "typescript",
+] as const;
 
 interface CodeBlockProps {
   language: (typeof SUPPORTED_LANGUAGES)[number];
@@ -69,8 +76,27 @@ const renderAST = (ast: AST, i?: number) => {
   }
 };
 
+const toLanguage = (str: (typeof SUPPORTED_LANGUAGES)[number]) => {
+  switch (str) {
+    case "eclair":
+      return Language.Eclair;
+    case "haskell":
+      return Language.Haskell;
+    case "bash":
+      return Language.Bash;
+    case "c":
+      return Language.C;
+    case "llvm":
+      return Language.LLVM;
+    case "typescript":
+      return Language.TS;
+    default:
+      throw new Error(`Unsupported language: ${str}`);
+  }
+};
+
 const CodeBlock = ({ language, code }: CodeBlockProps) => {
-  const ast = highlightHast(code.trim()) as AST;
+  const ast = highlightHast(code.trim(), toLanguage(language)) as AST;
   return (
     <pre className="bg-[#fafafa] p-4 rounded-md shadow-md">
       <code className={`language-${language}`}>{renderAST(ast)}</code>

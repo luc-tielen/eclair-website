@@ -54,20 +54,26 @@ example:
 When you compile the Eclair code listed above, it will generate the following
 function declarations somewhere in the final LLVM IR:
 
-```llvm
+<CodeBlock
+  language="llvm"
+  code={`
 // NOTE: LLVM doesn't care about signedness, only about the size of each value
 declare external ccc i1 @my_constraint(%symbol_table*, i32, i32)
 declare external ccc i32 @my_function(%symbol_table*, i32)
-```
+`}
+/>
 
 In C the generated IR would be equivalent to:
 
-```c
+<CodeBlock
+  language="c"
+  code={`
 struct symbol_table;
 
 extern bool my_constraint(struct symbol_table*, uint32_t, uint32_t);
 extern uint32_t my_function(struct symbol_table*, uint32_t);
-```
+`}
+/>
 
 From this we can conclude the following rules when writing user-defined
 functions:
@@ -105,7 +111,9 @@ are integrating so tightly with the language runtime.
 The following set of commands is how you can compile and statically link
 user-defined functions in C against Eclair code:
 
-```bash
+<CodeBlock
+  language="bash"
+  code={`
 $ eclair compile my_code.eclair --emit llvm > my_code.ll
 # Scenario 1: separate library that contains the user-defined functions
 $ clang -c lib.c -o lib.o
@@ -114,7 +122,8 @@ $ clang -o program main.c libudf.a my_code.ll
 # Scenario 2: the binary that calls into Eclair directly contains
 # the user-defined functions
 $ clang -o program main.c my_code.ll
-```
+`}
+/>
 
 This is the basic set of commands, but you can choose to add extra compiler
 flags as needed. For example: If you enable `-flto`, you can get extra
@@ -151,8 +160,8 @@ full_name("Jane Doe").
 full_name("John Smith").
 
 matching_name(name) :-
-  full_name(name),
-  match(name, ".*Doe").
+full_name(name),
+match(name, ".\*Doe").
 `
 } />
 
@@ -168,9 +177,9 @@ Another example that uses functions to calculate complex expressions:
 @def result(u32) output.
 
 result(z) :-
-  y = 123,
-  z = my_function(y, x),
-  value(x).
+y = 123,
+z = my_function(y, x),
+value(x).
 `
 } />
 
