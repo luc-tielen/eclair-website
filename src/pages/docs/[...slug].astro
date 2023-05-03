@@ -17,3 +17,18 @@ const { Content, headings } = await entry.render();
 <DocumentationLayout frontmatter={entry.data} headings={headings}>
 	<Content/>
 </DocumentationLayout>
+
+<!-- Same colors as Link component -->
+<style is:global>
+	.prose a {
+		color: rgb(37 99 235);
+	}
+
+	.prose a:hover {
+		color: rgb(30 64 175);
+	}
+
+	.prose a:visited {
+		color: rgb(147 51 234);
+	}
+</style>
