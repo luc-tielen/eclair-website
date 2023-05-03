@@ -7,16 +7,16 @@ const overview = "Overview";
 ---
 
 <aside id="right-scrollbar" class="hidden sm:flex text-xs">
-	<nav aria-label="Secondary" class="z-20 h-screen sticky top-0 pt-8 pr-8 w-48 overflow-y-auto">
-		{
-			headings && (
-				<TableOfContents
-					toc={generateToc(headings, overview)}
-					labels={{ onThisPage: "On this page" }}
-				/>
-			)
-		}
-	</nav>
+  <nav aria-label="Secondary" class="z-20 h-screen sticky top-0 pt-8 pr-8 w-48 overflow-y-auto">
+    {
+      headings && (
+	<TableOfContents
+	  toc={generateToc(headings, overview)}
+	  labels={{ onThisPage: "On this page" }}
+	/>
+      )
+    }
+  </nav>
 </aside>
 
 <style is:global>

@@ -75,7 +75,9 @@ const TableOfContents = ({ toc, labels }: Props) => {
     return (
       <li>
         <a
-          className={`hover:text-slate-900 ${toDepthClass(depth)} ${currentHeading.slug === slug ? "current-header-link" : ""
+          className={`flex items-center hover:text-slate-900 ${toDepthClass(
+            depth
+          )} ${currentHeading.slug === slug ? "current-header-link" : ""
             }`.trim()}
           href={`#${slug}`}
         >

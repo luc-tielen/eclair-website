@@ -1,0 +1,181 @@
+---
+title: User defined functions
+---
+
+import CodeBlock from "../../components/CodeBlock.tsx";
+
+Eclair has support for invoking user-defined or external functions defined in
+another programming language. This makes it possible to add functionality to
+the language, without having to change Eclair itself. This helps keep the
+language small.
+
+User-defined functions are introduced with the `@extern` keyword. For those of
+you familiar with C or C++, it is conceptually very similar to `extern` functions.
+Extern functions can be used either as a constraint, or as a plain function which
+returns a result. The syntax looks as follows:
+
+<CodeBlock language="eclair" code={
+`
+// External function used as a constraint
+@extern CONSTRAINT_NAME(TYPE+).
+
+// External function used as a function
+// The final type at the end is the return type of the function.
+@extern FUNCTION_NAME(TYPE+) TYPE.
+`
+} />
+
+Extern functions defined as a constraint can be used in the body of a rule,
+just like a normal relational atom. They can't be used as constant top-level
+facts though. If an external function is defined as a plain function with a
+return type, then it can be used in any place where an expression is allowed.
+The compiler verifies that external constraints and functions are used only in
+places where they are allowed.
+
+An important thing to note is that user-defined functions do _not_ ground
+variables used in their arguments. If you use a variable in a user-defined
+function, you will also have to ground the variable by using it in an atom
+or by assigning a constant to it.
+
+## Compiling and linking external definitions
+
+Before we write our own externally defined functions, we first need to
+understand the conventions that Eclair uses under the hood with a simple
+example:
+
+<CodeBlock
+  language="eclair"
+  code={`
+@extern my_constraint(u32, u32).
+@extern my_function(string) string.
+`}
+/>
+
+When you compile the Eclair code listed above, it will generate the following
+function declarations somewhere in the final LLVM IR:
+
+```llvm
+// NOTE: LLVM doesn't care about signedness, only about the size of each value
+declare external ccc i1 @my_constraint(%symbol_table*, i32, i32)
+declare external ccc i32 @my_function(%symbol_table*, i32)
+```
+
+In C the generated IR would be equivalent to:
+
+```c
+struct symbol_table;
+
+extern bool my_constraint(struct symbol_table*, uint32_t, uint32_t);
+extern uint32_t my_function(struct symbol_table*, uint32_t);
+```
+
+From this we can conclude the following rules when writing user-defined
+functions:
+
+1. User-defined functions need to be written in a language that is compatible
+   with the C ABI.
+2. Each argument in Eclair is replaced with a 32-bit integer. This is also true
+   for strings, since they are internally mapped to 32-bit integers.
+3. The return type of functions is also replaced with a 32-bit integer for the
+   same reason.
+4. Every user-defined function is passed a pointer to the
+   [symbol table](/runtime/symbol_table) managed by the Eclair runtime. Strings
+   have to be manually looked up or inserted in the table.
+5. Constraints have a bool return type, even though this is not visible in
+   the Eclair code itself. A return value of `true` / `1` indicates the
+   function / predicate succeeded, otherwise `false` / `0` should be returned.
+
+Besides these rules, you should also take the following things into account:
+
+1. Functions should be deterministic, and always return the same value for the
+   same set of function arguments.
+2. Functions are only allowed to access the Eclair runtime via the provided
+   API functions, and should not modify or read values directly from the
+   internal data-structures.
+3. No assumptions can be made on how many times a user-defined function is
+   invoked. (This is heavily dependent on how Eclair optimizes the code.)
+4. These functions are invoked _many_ times in a hot-code path, so care should
+   be taken to write efficient / fast code.
+
+These are a lot of rules and considerations, but it's to be expected since we
+are integrating so tightly with the language runtime.
+
+### Compiling and linking with C
+
+The following set of commands is how you can compile and statically link
+user-defined functions in C against Eclair code:
+
+```bash
+$ eclair compile my_code.eclair --emit llvm > my_code.ll
+# Scenario 1: separate library that contains the user-defined functions
+$ clang -c lib.c -o lib.o
+$ ar rcs libudf.a lib.o
+$ clang -o program main.c libudf.a my_code.ll
+# Scenario 2: the binary that calls into Eclair directly contains
+# the user-defined functions
+$ clang -o program main.c my_code.ll
+```
+
+This is the basic set of commands, but you can choose to add extra compiler
+flags as needed. For example: If you enable `-flto`, you can get extra
+whole-program optimizations.
+
+### Compiling and linking with other languages
+
+Eclair can also be linked with other languages, as long as they provide a way of
+generating C ABI compatible code.
+
+The rough outline of what you will need to do is:
+
+1. Compile the Eclair program to LLVM IR;
+2. Compile your language of choice to a binary object, static archive, or LLVM IR;
+3. Link everything together into one executable.
+
+## Examples
+
+### Regex matching
+
+The following is an example of how constraints could be used to add
+regex-matching functionality to Eclair.
+
+<CodeBlock language="eclair" code={
+`
+// Assume this function
+@extern match(string, string).
+
+@def full_name(string).
+@def matching_name(string) output.
+
+full_name("John Doe").
+full_name("Jane Doe").
+full_name("John Smith").
+
+matching_name(name) :-
+  full_name(name),
+  match(name, ".*Doe").
+`
+} />
+
+### Complex calculations
+
+Another example that uses functions to calculate complex expressions:
+
+<CodeBlock language="eclair" code={
+`
+@extern my_function(u32, u32) u32.
+
+@def value(u32) input.
+@def result(u32) output.
+
+result(z) :-
+  y = 123,
+  z = my_function(y, x),
+  value(x).
+`
+} />
+
+## Future work
+
+A "standard library" for Eclair is planned in the future (most likely as a
+Rust library), to provide functionality for strings, regexes, complex
+arithmetic, ...

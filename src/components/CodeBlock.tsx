@@ -70,7 +70,7 @@ const renderAST = (ast: AST, i?: number) => {
 };
 
 const CodeBlock = ({ language, code }: CodeBlockProps) => {
-  const ast = highlightHast(code) as AST;
+  const ast = highlightHast(code.trim()) as AST;
   return (
     <pre className="bg-[#fafafa] p-4 rounded-md shadow-md">
       <code className={`language-${language}`}>{renderAST(ast)}</code>

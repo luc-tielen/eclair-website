@@ -30,7 +30,7 @@ case, the compiler will abort with an error.
 7. A variable is grounded if another grounded variable is assigned to it;
 8. All occurrences of a variable with the same name in a rule are grounded once
    one of them is grounded;
-9. A [user-defined function or constraint](/user-defined-functions) does not
+9. A [user-defined function or constraint](/docs/user-defined-functions) does not
    ground any of it's arguments. The return value of a user-defined function is
    grounded if all of it's arguments are grounded.
 
