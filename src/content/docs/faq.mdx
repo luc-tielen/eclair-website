@@ -1,0 +1,58 @@
+---
+title: Frequently Asked Questions
+---
+
+export const questions = [];
+
+<dl>
+  {questions.map(([question, answer]) => (
+    <>
+      <dt class="font-medium">{question}</dt>
+      <dd>{answer}</dd>
+    </>
+  ))}
+  <dt class="font-medium">What license does Eclair have?</dt>
+  <dd>
+    The Eclair compiler itself is licensed under a BSD-3 license, a permissive
+    open-source license. You can find the license
+    [here](https://github.com/luc-tielen/eclair-lang/blob/main/LICENSE). Note
+    that the license only applies to the compiler; you are free to license the
+    generated code however you see fit.
+  </dd>
+  <dt class="font-medium">Where does the name come from?</dt>
+  <dd>
+    Eclair is heavily inspired by [Soufflé](https://souffle-lang.github.io),
+    another high-performance Datalog that compiles to C++. Because of the
+    similarities, another kind of pastry was chosen to stay in the same food
+    theme. Besides, an eclair contains both chocolate and pudding, what's not to
+    like?
+  </dd>
+  <dt class="font-medium">Can I use Eclair by itself?</dt>
+  <dd>
+    No, Eclair is not a general purpose programming language; it's only made for
+    querying data. Eclair will always depend on another _"host"_ language for
+    interacting with the outside world, just like when you would write an
+    application that makes use of SQL. You can start using Eclair from another
+    language by making use of one of the provided [language
+    bindings](/docs/language-support).
+  </dd>
+  <dt class="font-medium">What languages is Eclair itself written in?</dt>
+  <dd>
+    The Eclair compiler is written in a mix of Haskell and Datalog. Using higher
+    level languages makes the code easier to maintain, adapt and extend. The
+    [LLVM compiler framework](https://llvm.org) is used for achieving fast query
+    times.
+  </dd>
+  <dt class="font-medium">What architectures are supported by Eclair?</dt>
+  <dd>
+    Because Eclair compiles to LLVM IR, any supported architecture by LLVM is a
+    possible compilation target for Eclair. Eclair can compile both to native
+    machine code or WebAssembly, which means you can run it almost anywhere!
+  </dd>
+</dl>
+
+<p class="pt-6">
+  Can't find the answer you're looking for? Take a look at our
+  [documentation](/docs) or consider submitting a [issue on
+  Github](https://github.com/luc-tielen/eclair-website/issues).
+</p>
