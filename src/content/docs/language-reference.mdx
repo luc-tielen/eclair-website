@@ -1,0 +1,177 @@
+---
+title: Language reference
+---
+
+import CodeBlock from "../../components/CodeBlock.tsx";
+
+This page contains an overview of all the current features in Eclair and their
+corresponding syntax.
+
+## Declarations
+
+A program consists of zero or more top-level declarations.
+Declarations can be [type definitions](#type-definitions), [atoms](#atoms),
+[rules](#rules) or [extern definitions](#extern-definitions).
+Together, they can be used to describe logical queries that Eclair will search
+for in a given dataset.
+
+Syntactically, a period (`.`) is used to mark the end of each declaration.
+
+### Type definitions
+
+Before you can use a _relation_ in a [atom](#atoms) or [rule](#rules), you
+will first need to declare them. A type definition consists of the name of the
+relation, along with the [types](#primitive-types) of each of their arguments.
+Note that a relation requires always at least one argument.
+
+Besides the name of the relation and its arguments, you can also specify if the
+relation is meant to be used as an `input`, `output`, as both `input` and
+`output`.
+
+**Important**: If you do not add any usage qualifier, Eclair will assume the
+relation is only used internally. If you then try to add data or retrieve
+results from an internal relation, Eclair will do _nothing_ (because no code for
+this functionality would have been generated).
+
+Below are some example type definitions:
+
+<CodeBlock
+  language="eclair"
+  code={`
+@def input_example(arg1: u32) input.
+@def output_example(arg1: string, arg2: u32) output.
+@def input_output(arg1: string) input output.
+@def internal_relation(arg1: string).
+`}
+/>
+
+### Atoms
+
+Once a relation is defined, it can be used as an _atom_. Atoms can appear
+either directly as a top-level declaration, or inside a [rule](#rules).
+A top-level atom is also referred to as _fact_. When an atom is used inside the
+body of a rule, they are referred to as a _(rule) clause_.
+
+An atom consists of the name of the relation, followed by one or more arguments.
+Note that for top-level atoms, it is only allowed to use constant literals for
+one of the arguments; [variables](#variables) or [wildcards](#wildcards) are
+not allowed. The snippet below shows examples of some facts:
+
+<CodeBlock language="eclair" code={
+`
+@def person(first_name: string, last_name: string, age: u32).
+@def siblings(first_sibling: string, second_sibling: string).
+
+person("John", "Doe", 30).
+person("Jane", "Doe", 27).
+
+siblings("John", "Jane").
+`
+} />
+
+In the next section about [rules](#rules), more examples will be given how to
+use atoms inside rule bodies.
+
+Besides facts defined directly in Eclair code, it is also possible to use the
+[Eclair API](/docs/api) to insert _input_ facts or retrieve _output_ facts dynamically.
+
+### Rules
+
+Besides atoms, relations can also be used in rules.
+
+TODO what does rule consist of, recursive rules, joins (and), disjunction, explain negation (link to negation doc)
+
+The following code snippet shows how you can use rules to find all reachable vertices in a graph:
+
+<CodeBlock language="eclair" code={
+`
+@def edge(from: u32, to: u32) input.
+@def reachable(start: u32, end: u32) output.
+
+reachable(x, y) :-
+  edge(x, y).
+
+reachable(x, y) :-
+  edge(x, z),
+  reachable(z, y).
+`
+} />
+
+### Extern definitions
+
+## Primitive types
+
+Eclair has support for both unsigned 32-bit integers and strings. TODO finish this..
+
+### Integers
+
+Eclair has support for 32-bit unsigned integers.
+
+<CodeBlock
+  language="eclair"
+  code={`
+123
+`}
+/>
+
+### Strings
+
+<CodeBlock language="eclair" code={`TODO`} />
+
+## Variables
+
+### Wildcards
+
+### Typed holes
+
+Typed holes (also referred to as just _holes_) represent a piece of Eclair code
+that is _unfinished_. They make it possible to have a valid Eclair program that
+is not fully thought out yet, but that the compiler can still reason about.
+
+Holes are allowed in any location in a rule body where expressions (literal
+values or variables) are allowed. The syntax for a typed hole is a single
+question mark (`?`).
+
+<CodeBlock language="eclair" code={
+`
+reachable(x, y) :-
+ edge(x, ?),
+ reachable(z, y).
+
+fact(?).
+
+rule(x) :-
+  x = ?,
+  fact(x).
+`
+} />
+
+When you use a typed hole, you can ask the Eclair compiler to show you the
+type-level information that it deduced at that location in the program. This
+can be useful to help figuring out type errors in your program. For more
+information about typed holes, check out the
+[typesystem documentation](/docs/typesystem).
+
+## Operators
+
+TODO constraints, comparisons, where allowed, ...
+
+## Comments
+
+Comments in Eclair have the same syntax as C-style languages. They can appear
+anywhere in the code. Single-line comments are prefixed with `//` and continue
+until the end of the current line. Multi-line comments start with `/*` and end
+with `*/` and can span multiple lines. Below is a snippet of Eclair code with
+some comments:
+
+<CodeBlock language="eclair" code={
+`
+// A single line comment
+
+/*
+A comment
+spanning
+multiple lines.
+*/
+`
+} />
