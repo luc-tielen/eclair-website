@@ -2,15 +2,7 @@
 title: Frequently Asked Questions
 ---
 
-export const questions = [];
-
 <dl>
-  {questions.map(([question, answer]) => (
-    <>
-      <dt class="font-medium">{question}</dt>
-      <dd>{answer}</dd>
-    </>
-  ))}
   <dt class="font-medium">What license does Eclair have?</dt>
   <dd>
     The Eclair compiler itself is licensed under a BSD-3 license, a permissive
@@ -48,6 +40,19 @@ export const questions = [];
     Because Eclair compiles to LLVM IR, any supported architecture by LLVM is a
     possible compilation target for Eclair. Eclair can compile both to native
     machine code or WebAssembly, which means you can run it almost anywhere!
+  </dd>
+  <dt class="font-medium">Why is there no direct support for 64-bit integers?</dt>
+  <dd>
+    Eclair runs its queries 100% in-memory (RAM), and uses datastructures that
+    are optimized to use as little memory as possible. Internally, this means
+    that everything is represented by 32-bit integers. Using 64-bit integers
+    would roughly double the RAM usage for a query (and perform slower too!).
+
+    In practice, the lack of 64-bit integers usually doesn't end up being a
+    problem for search-based problems, or you could use some simple workarounds.
+    If you do encounter a situation where a _64-bit mode_ would help considerably,
+    consider opening an [issue on Github](https://github.com/luc-tielen/eclair-website/issues).
+
   </dd>
 </dl>
 
