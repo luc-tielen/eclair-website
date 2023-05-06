@@ -99,28 +99,101 @@ reachable(x, y) :-
 
 ### Extern definitions
 
+
+
 ## Primitive types
 
-Eclair has support for both unsigned 32-bit integers and strings. TODO finish this..
+Eclair currently has support for the 32-bit [unsigned integers](#integers) and
+[string](#strings) primitive types. Other types such as signed integers are
+planned and will be added in the future.
 
 ### Integers
 
-Eclair has support for 32-bit unsigned integers.
+Integer literals should be written down in decimal form. Integer arguments in
+[type definitions](#type-definitions) are specified with the `u32` keyword.
+The following snippet shows the syntax for using integers:
 
 <CodeBlock
   language="eclair"
   code={`
-123
+@def coordinate(x: u32, y: u32).
+
+coordinate(3, 7).
+coordinate(8, 4).
 `}
 />
 
+Integers can be used in both [arithmetic expressions](#arithmetic) or
+[comparisons](#comparisons).
+
 ### Strings
 
-<CodeBlock language="eclair" code={`TODO`} />
+String literals in Eclair start and end with a double-quote (`"`) and can
+contain zero or more characters. String arguments in [type
+definitions](#type-definitions) are specified with the `string` keyword. The
+code below is a small example of how you can use string literals:
+
+<CodeBlock language="eclair" code={
+`
+@def book(title: string).
+
+book("Structure and Interpretation of Computer Programs").
+book("7 languages in 7 weeks").
+`
+} />
+
+Internally, strings are stored as UTF-8-encoded bytearrays with a known length.
+They do not have a 0-terminator like in C.
+
+Eclair only provides very minimal functionality for strings in the form of
+[(in-)equality comparisons](#comparisons). This is done to keep the language
+small. If you do need extra functionality (e.g. regex support), you can add
+this functionality with [user-defined functions](/docs/user-defined-functions).
 
 ## Variables
 
+TODO mention [grounding](/docs/grounding)
+
 ### Wildcards
+
+Wildcards are a special kind of variable that you can use in Eclair when you
+_don't care_ about a specific argument value in a rule clause. A wildcard
+variable unifies with every value. The syntax for a wildcard is a single
+underscore (`_`). The code below shows how you could use wildcards to ignore
+some arguments in a fact:
+
+<CodeBlock language="eclair" code={
+`
+@def person(name: string, age: u32).
+@def person_name(name: string).
+
+person_name(name) :-
+  person(name, _).
+`
+} />
+
+Unlike variables, if there are more than two wildcards in a rule body, they
+will **not** unify with each other. In other words, each wildcard is treated as
+a unique variable. The following example shows how the compiler would rewrite a
+rule containing multiple wildcards:
+
+<CodeBlock language="eclair" code={
+`
+rule(x) :-
+  fact1(x, _),
+  fact2(x, y, _).
+
+// will be rewritten as:
+
+rule(x) :-
+  fact1(x, wildcard_var1),
+  fact2(x, y, wildcard_var2).
+`
+} />
+
+Wildcards are not allowed in rule heads or in arithmetic expressions; they are
+only allowed as arguments of rule clauses. This restriction is necessary to
+make sure the program can be properly compiled.
 
 ### Typed holes
 
@@ -155,6 +228,10 @@ information about typed holes, check out the
 ## Operators
 
 TODO constraints, comparisons, where allowed, ...
+
+## Arithmetic
+
+## Comparisons
 
 ## Comments
 
