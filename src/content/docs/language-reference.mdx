@@ -89,17 +89,15 @@ The following code snippet shows how you can use rules to find all reachable ver
 @def reachable(start: u32, end: u32) output.
 
 reachable(x, y) :-
-  edge(x, y).
+edge(x, y).
 
 reachable(x, y) :-
-  edge(x, z),
-  reachable(z, y).
+edge(x, z),
+reachable(z, y).
 `
 } />
 
 ### Extern definitions
-
-
 
 ## Primitive types
 
@@ -167,8 +165,8 @@ some arguments in a fact:
 @def person(name: string, age: u32).
 @def person_name(name: string).
 
-person_name(name) :-
-  person(name, _).
+person*name(name) :-
+person(name, *).
 `
 } />
 
@@ -186,8 +184,8 @@ rule(x) :-
 // will be rewritten as:
 
 rule(x) :-
-  fact1(x, wildcard_var1),
-  fact2(x, y, wildcard_var2).
+fact1(x, wildcard_var1),
+fact2(x, y, wildcard_var2).
 `
 } />
 
@@ -214,8 +212,8 @@ reachable(x, y) :-
 fact(?).
 
 rule(x) :-
-  x = ?,
-  fact(x).
+x = ?,
+fact(x).
 `
 } />
 
@@ -227,11 +225,69 @@ information about typed holes, check out the
 
 ## Operators
 
-TODO constraints, comparisons, where allowed, ...
+Eclair provides built-in operators for doing [arithmetic](#arithmetic) or
+[comparing values](#comparisons). The following sections provide more
+information on where these operators are allowed and how they can be used.
 
-## Arithmetic
+### Comparisons
 
-## Comparisons
+Eclair supports built-in operators for comparing 2 values. These can be divided
+into equality constraints (`=` and `!=`), and inequality comparisons (`<`,
+`<=`, `>` and `>=`). Equality constraints are supported on all types. The
+comparison operators are supported only on integer values.
+
+**Important**: the equality operator has different behavior compared to most
+other languages! In Eclair, equality is actual mathematical equality; it is
+_not_ an assignment of a variable. This means that when you write `x = 3`, you
+are saying that `x` equals to `3`. (On a side note, this means you can also
+write `3 = x`.) Besides this, the equality operator also plays an important
+rule in [grounding variables](/docs/grounding).
+
+The code below shows how comparisons can be used in Eclair.
+
+<CodeBlock
+  language="eclair"
+  code={`
+rule(x) :-
+  fact(x),
+  x < 10,
+  x >= 3,
+  x != 7.
+`}
+/>
+
+Comparison operators can only appear in a rule body. Only one comparison is
+possible per clause, compound in-equality comparisons are not supported.
+
+### Arithmetic
+
+Eclair supports arithmetic operators found in most other languages. For now
+the supported operators are `+`, `-`, `*`, and `/`. In the future more
+operators will be added (bitwise operators, logical operators, ...).
+
+Operators can be used in any rule clause and even in the rule head, as long as
+both arguments of the binary operation are [grounded](/docs/grounding).
+
+Expressions with arithmetic operators can be nested, and have the same
+precedence rules as in math. Parentheses can be used to override the order
+in which sub-expressions are evaluated.
+
+The snippet below showcases how you can use arithmetic operators:
+
+<CodeBlock
+  language="eclair"
+  code={`
+rule(x + y) :-
+  fact1(x),
+  fact2(y + 5 * 7),
+  y = (1 + 8) / 3 * 4.
+`}
+/>
+
+Arithmetic operations are only supported on integers. If you want to do e.g.
+string concatenation (commonly done with `+` in other languages), then you will
+need to create a [user-defined function](#user-defined-functions) that
+implements this behavior.
 
 ## Comments
 
@@ -245,10 +301,10 @@ some comments:
 `
 // A single line comment
 
-/*
+/_
 A comment
 spanning
 multiple lines.
-*/
+_/
 `
 } />
