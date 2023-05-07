@@ -89,15 +89,43 @@ The following code snippet shows how you can use rules to find all reachable ver
 @def reachable(start: u32, end: u32) output.
 
 reachable(x, y) :-
-edge(x, y).
+  edge(x, y).
 
 reachable(x, y) :-
-edge(x, z),
-reachable(z, y).
+  edge(x, z),
+  reachable(z, y).
 `
 } />
 
 ### Extern definitions
+
+Eclair has support for linking against functions defined in another language.
+This is possible via _extern definitions_ (also called _user-defined functions_).
+This helps keep the language small while still being extendable.
+
+User-defined functions do not [ground](/docs/grounding) any of their arguments,
+but they *do* ground their return value if all arguments were also grounded.
+
+Extern definitions are declared in Eclair via the `@extern` keyword, followed
+by one or more arguments, possibly followed by a return type. The snippet below
+shows an example of how to use extern definitions in Eclair:
+
+<CodeBlock language="eclair" code={
+`
+@extern my_function(u32) u32.
+@extern my_constraint(u32).
+@def rule(u32).
+@def fact(u32).
+
+rule(x) :-
+  fact(x),
+  y = my_function(x),
+  my_constraint(y).
+`
+} />
+
+You can find more detailed information about user-defined
+functions [here](/docs/user-defined-functions).
 
 ## Primitive types
 
@@ -184,8 +212,8 @@ rule(x) :-
 // will be rewritten as:
 
 rule(x) :-
-fact1(x, wildcard_var1),
-fact2(x, y, wildcard_var2).
+  fact1(x, wildcard_var1),
+  fact2(x, y, wildcard_var2).
 `
 } />
 
@@ -206,14 +234,14 @@ question mark (`?`).
 <CodeBlock language="eclair" code={
 `
 reachable(x, y) :-
- edge(x, ?),
- reachable(z, y).
+  edge(x, ?),
+  reachable(z, y).
 
 fact(?).
 
 rule(x) :-
-x = ?,
-fact(x).
+  x = ?,
+  fact(x).
 `
 } />
 
@@ -301,10 +329,10 @@ some comments:
 `
 // A single line comment
 
-/_
+/*
 A comment
 spanning
 multiple lines.
-_/
+*/
 `
 } />
