@@ -77,20 +77,84 @@ Besides facts defined directly in Eclair code, it is also possible to use the
 
 ### Rules
 
-Besides atoms, relations can also be used in rules.
+Besides [atoms](#atoms), relations can also be used in rules. Rules can be used
+to describe what patterns to search for in a dataset.
 
-TODO what does rule consist of, recursive rules, joins (and), disjunction, explain negation (link to negation doc)
+A rule consists of a _rule head_ and a _rule body_ consisting of one or more
+_rule clauses_. The syntax for a rule is as follows:
 
-The following code snippet shows how you can use rules to find all reachable vertices in a graph:
+<CodeBlock language="eclair" code={
+`
+rule_head(arg1, arg2) :-
+  clause1(arg1, arg2),
+  // ...
+  clauseN(arg1).
+`
+} />
+
+Eclair will evaluate the above rule as follows:
+
+1. For each of the rule clauses in the rule body: check if a matching atom can
+   be found,
+2. If this is the case, add the relation with the values in the rule head to
+   the query results.
+
+Multiple clauses are separated by a comma (`,`). This forms a logical
+conjunction (_AND_) of the clauses (all clauses need to be satisfied for the
+rule to true).
+
+Besides conjunction, it is also possible to create a logical disjunction (_OR_)
+with rules. You can do this by writing down two or more rules, each with
+different rule bodies:
+
+<CodeBlock language="eclair" code={
+`
+rule_head(arg1, arg2) :-
+  // rule body 1...
+
+rule_head(arg1, arg2) :-
+  // rule body 2...
+`
+} />
+
+In this scenario, the rule head will be added to the query results if one of
+the two rule bodies is satisfied.
+
+Clauses can be negated (logical _NOT_) by prepending a exclamation mark (`!`)
+to a clause. Eclair will then look if that clause is not satisfied. An example
+of negation can be found below:
+
+<CodeBlock language="eclair" code={
+`
+rule_head(arg1, arg2) :-
+  clause1(arg1, arg2),
+  !clause2(arg2).
+`
+} />
+
+Negation has additional constraints to guarantee that the program is
+well-structured and will terminate. More information regarding logical negation
+in rules can be found [here](/docs/negation).
+
+Rules can be recursive (this happens when the relation in the rule head also
+appears in the rule body). Eclair will use [bottom-up
+evaluation](/docs/bottom-up-evaluation) to iteratively look for results until
+no new information can be deduced. An example of a recursive query can be found
+below. It makes use of two rules to find all reachable vertices in a graph:
 
 <CodeBlock language="eclair" code={
 `
 @def edge(from: u32, to: u32) input.
 @def reachable(start: u32, end: u32) output.
 
+// 2 points are reachable iff
+// there is a direct edge between those points.
 reachable(x, y) :-
   edge(x, y).
 
+// 2 points are reachable iff
+// there is a direct edge between a point x and a third point z,
+// AND point y is reachable from point z
 reachable(x, y) :-
   edge(x, z),
   reachable(z, y).
@@ -107,8 +171,9 @@ User-defined functions do not [ground](/docs/grounding) any of their arguments,
 but they *do* ground their return value if all arguments were also grounded.
 
 Extern definitions are declared in Eclair via the `@extern` keyword, followed
-by one or more arguments, possibly followed by a return type. The snippet below
-shows an example of how to use extern definitions in Eclair:
+by the name of the function and one or more arguments, possibly followed by a
+return type. The snippet below shows an example of how to use extern
+definitions in Eclair:
 
 <CodeBlock language="eclair" code={
 `
@@ -178,7 +243,30 @@ this functionality with [user-defined functions](/docs/user-defined-functions).
 
 ## Variables
 
-TODO mention [grounding](/docs/grounding)
+Eclair supports the use of variables inside rules. Unlike most languages,
+variables do not need to be declared up front. Instead you can simply start
+using them in a rule, and Eclair will generate the necessary code to properly
+initialize the variables.
+
+If a variable occurs multiple times in a single rule body, an implicit equality
+check is added to make sure the variables are equal. The code below shows an
+example where this is used to find 3 consecutive links that form a chain:
+
+<CodeBlock language="eclair" code={
+`
+chain(first, last) :-
+  link(first, second),
+  link(second, third),
+  link(third, last).
+`
+} />
+
+Variables always start with a letter and are followed by zero or more
+alpha-numeric or underscore characters.
+
+Variables are only allowed in [rules](#rules) (both in the rule body and rule
+head), not in [facts](#atoms). In order for Eclair to generate valid code,
+variables need to be [grounded](/docs/grounding).
 
 ### Wildcards
 
@@ -198,10 +286,10 @@ person(name, *).
 `
 } />
 
-Unlike variables, if there are more than two wildcards in a rule body, they
-will **not** unify with each other. In other words, each wildcard is treated as
-a unique variable. The following example shows how the compiler would rewrite a
-rule containing multiple wildcards:
+Contrary to regular variables, when a rule body contains more than two
+wildcards, they will **not** unify with each other. In other words, each
+wildcard is treated as a unique variable. The following example shows how the
+compiler would rewrite a rule containing multiple wildcards:
 
 <CodeBlock language="eclair" code={
 `
