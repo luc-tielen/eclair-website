@@ -2,17 +2,93 @@
 title: Compiling Eclair code
 ---
 
+import CodeBlock from "../../components/CodeBlock.tsx";
+
 In this tutorial, we learn how to use the Eclair compiler to compile Eclair
-code to executable machine code.
+programs to executable code. This guide assumes that
+[eclair is already installed on your machine](/docs/getting-started).
 
-TODO check previous part
+In the commands on this page, `$ECLAIR` should be replaced with one of two options:
+
+1. `eclair` if you installed eclair directly on your system,
+2. `docker run --rm eclair:latest -v $(pwd):/code eclair` if you previously
+   setup the eclair compiler via docker
+
+## Discovering compiler commands and options
+
+You can use the `-h` or `--help` flag to get more information about how to use
+Eclair or one of it's subcommands:
+
+<CodeBlock
+  language="bash"
+  code={`
+$ $ECLAIR -h
+$ $ECLAIR compile -h
+`}
+/>
+
+This can be a useful way to discover the different features of the Eclair
+compiler.
+
+## Compiling to LLVM
+
+The `compile` subcommand can be used to compile Eclair programs to various
+output formats using the `--emit` flag. The default format is LLVM IR, but each
+of the internal representations during compilation can also be generated
+(sometimes useful for understanding how the program will evaluate).
+
+Given the following example Eclair program:
+
+<CodeBlock language="eclair" code={`
+@def edge(from: u32, to: u32) input.
+@def reachable(start: u32, end: u32) output.
+
+reachable(x, y) :-
+  edge(x, y).
+
+reachable(x, y) :-
+  edge(x, z),
+  reachable(z, y).
+`} />
+
+Then it can be compiled to LLVM IR with the following command:
+
+<CodeBlock language="bash" code={`
+$ $ECLAIR compile --emit llvm path.eclair > path.ll
+`
+} />
+
+## Compiling to native executable code
+
+After you have [compiled your program to LLVM](#compiling-to-llvm), you can use
+all of the tooling from the LLVM framework (such as `clang`, `llc`, `opt`, ...).
+
+For example, you can compile the generated LLVM file from the previous section
+to an object file using the next command:
+
+<CodeBlock language="bash" code={`
+$ clang -c -o path.o path.ll
+# OR:
+$ llc-14 -filetype=obj -o path.o path.ll
+`} />
+
+After that you can turn the object file into a static library archive:
+
+<CodeBlock language="bash" code={`
+$ ar rcs path.a path.o
+`} />
+
+The section about [integrating with other languages](#integrating-with-other-languages)
+will show how to link this library into a final executable.
+
+## Compiling to WebAssembly
+
+<CodeBlock language="bash" code={`
+
+`} />
+
+TODO wasm (walloc), alleen via TS
 TODO link to integrating with other languages
-TODO eclair -h, eclair c -h for all flags and options
-TODO compile reachable.eclair, to llvm, to object file, ...
-TODO wasm (walloc)
-
-how to use compiler,
-simple code snippet
 
 ## Integrating with other languages
 
