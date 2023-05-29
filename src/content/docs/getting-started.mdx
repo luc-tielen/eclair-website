@@ -2,4 +2,196 @@
 title: Getting started with Eclair
 ---
 
-Coming soon!
+import CodeBlock from "../../components/CodeBlock.tsx";
+
+Welcome to Eclair!
+
+In this guide, we will explain how to install the Eclair compiler so you
+can start using eclair in your projects.
+
+Let's begin!
+
+## Pre-requisites
+
+First, the following list are the minimal requirements and tools to start using
+Eclair:
+
+- Operating system: Linux or OSX
+- [git](#git)
+- [LLVM (version 14 recommended)](#llvm-toolchain)
+
+The steps below will assume Ubuntu Linux when Linux is mentioned, but with some
+slight modifications the commands can also be ran on other Linux distributions.
+
+Depending on how you want to use Eclair (via
+[docker](#using-eclair-from-within-docker) or when you [build Eclair from
+source](#building-from-source)), you may need to install some additional
+tools.
+
+### Git
+
+Eclair makes use of [git](https://git-scm.com/) for version control.
+The steps below show how to install git:
+
+Linux:
+
+<CodeBlock
+  language="bash"
+  code={`
+$ sudo apt install git
+`}
+/>
+
+OSX:
+
+<CodeBlock
+  language="bash"
+  code={`
+$ brew install git
+`}
+/>
+
+### LLVM toolchain
+
+The Eclair compiler uses [LLVM](https://en.wikipedia.org/wiki/LLVM) for
+code-generation. LLVM **14** is the latest supported / recommended version.
+Install it via your package manager of choice, or build it from source. This
+can be done with entering the following commands in your terminal:
+
+Linux:
+
+<CodeBlock
+  language="bash"
+  code={`
+# If these packages are not available on your system,
+# try installing using this link: https://apt.llvm.org/.
+$ sudo apt install llvm-14
+$ sudo apt install lld-14
+# Optional, if you want to use clang instead of llc
+# to compile the LLVM IR
+$ sudo apt install clang-14
+`}
+/>
+
+OSX:
+
+<CodeBlock
+  language="bash"
+  code={`
+$ brew install llvm@14
+`}
+/>
+
+After LLVM finishes installing, make sure the following commands are in your
+`$PATH` (these might have a version suffix):
+
+- llvm-config
+- llc
+- opt
+- clang (optional, but handy)
+
+Finally, make sure that `libLLVM.so` (potentially with a suffix) is in a
+directory listed in your `$LD_LIBRARY_PATH`. If you installed LLVM via a
+package manager, this should automatically be the case.
+
+## Using Eclair from within Docker
+
+The easiest way to get up and running with a working Eclair compiler is via the
+[Docker](https://www.docker.com/) image in the eclair repository. Before you
+can build the image, make sure `docker` is installed on your system.
+Once `docker` is installed and available on your `$PATH`, you can build the
+[Eclair Docker image](https://github.com/luc-tielen/eclair-lang/blob/main/Dockerfile)
+by running the following commands in your terminal:
+
+<CodeBlock
+  language="bash"
+  code={`
+$ git clone git@github.com:luc-tielen/eclair-lang.git
+$ cd eclair-lang
+$ docker build -f Dockerfile . -t eclair:latest
+`}
+/>
+
+After the Docker image finishes building, you can use Eclair from within Docker
+by making use of a docker volume. For example, the following command assumes
+a `hello.eclair` file is located in the current directory, uses a volume to
+mount the current working directory inside the Docker image, and compiles the
+program to a file containing LLVM IR in textual format:
+
+<CodeBlock
+  language="bash"
+  code={`$ docker run --rm eclair:latest -v $(pwd):/code eclair compile hello.eclair > hello.ll`}
+/>
+
+The generated `hello.ll` file will be saved on your own machine. The file can
+then be further compiled with LLVM using `llc`, `clang`, ... like any other
+LLVM code.
+
+## Building from source
+
+Building from source is more difficult than using Eclair from the docker image
+(mostly because you will need more tooling installed on your system), but it allows
+you to directly use Eclair on your system.
+
+### Additional pre-requisites
+
+Besides the [minimal pre-requisites](#pre-requisites) mentioned previously,
+Eclair requires both a Haskell and Soufflé compiler to be installed
+on your system. If you notice that the installation instructions below are
+incomplete or outdated, please open a [Github
+issue](https://github.com/luc-tielen/eclair-website/issues).
+
+#### Soufflé
+
+Part of the Eclair compiler is written in [Soufflé
+Datalog](https://souffle-lang.github.io), so the Soufflé compiler (version
+**2.3**) needs to be available on your system. You can find binaries for your
+operating system on the [release page for
+Soufflé](https://github.com/souffle-lang/souffle/releases/tag/2.3), or install
+it via your package manager.
+
+#### GHC
+
+The other part of the Eclair compiler is written in Haskell, so we will need a Haskell
+compiler for compiling the source code. `GHC 9.4` is the current recommended
+Haskell compiler. The easiest way to install GHC is with
+[ghcup](https://www.haskell.org/ghcup/). Run the following commands in a
+terminal to install the Haskell toolchain:
+
+<CodeBlock
+  language="bash"
+  code={`
+$ curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh
+$ ghcup tui
+# In the UI, select GHC 9.4 and recommended Cabal version
+# Important: both install + set them!
+`}
+/>
+
+### Building the compiler
+
+Now that all pre-requisites are installed, you can build the compiler itself.
+Run the following commands to clone the Eclair repository from Github and build
+the code.
+
+<CodeBlock
+  language="bash"
+  code={`
+$ git clone git@github.com:luc-tielen/eclair-lang.git
+$ cd eclair-lang
+$ cabal build
+$ cabal list-bin eclair-lang
+`}
+/>
+
+Wait for the code to finish compiling. Afterwards, add the path returned by
+`cabal list-bin` to the `$PATH`.
+
+## Compiling code
+
+how to use compiler,
+simple code snippet
+
+## Integrating with other languages
+
+- language selection: rust, haskell, js/ts, (C)
