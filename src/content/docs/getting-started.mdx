@@ -184,14 +184,31 @@ $ cabal list-bin eclair-lang
 `}
 />
 
-Wait for the code to finish compiling. Afterwards, add the path returned by
-`cabal list-bin` to the `$PATH`.
+And wait for the code to finish compiling. If the compilation succeeds, it
+should print out the path to the compiler.
 
-## Compiling code
+### Configuring your environment
 
-how to use compiler,
-simple code snippet
+The final step is to update your environment variables (located in `.bashrc`,
+`.zshrc`, ...) in so the eclair compiler can be found. Do this by applying the
+following changes:
 
-## Integrating with other languages
+1. Add the path returned by `cabal list-bin` to your `$PATH` variable
+2. Add the following line to your config:
+   `export DATALOG_DIR=ECLAIR_REPO_DIR/cbits`.
+   ("ECLAIR_REPO_DIR" should be replaced with the path where you cloned the
+   Eclair compiler).
 
-- language selection: rust, haskell, js/ts, (C)
+### Check your installation
+
+If you followed all steps, you should now have a working Eclair compiler build
+from source! You can check this by running the following command in your terminal:
+
+<CodeBlock language="bash" code={`$ eclair --help`} />
+
+This should print out the help page for the compiler.
+
+## Next steps
+
+After the compiler is installed or build from source, you can learn how to
+[compile Eclair code](/docs/compiling-code).
