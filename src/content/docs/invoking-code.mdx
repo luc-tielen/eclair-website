@@ -1,0 +1,146 @@
+---
+title: Invoking Eclair code
+---
+
+import CodeBlock from "../../components/CodeBlock.tsx";
+
+In this guide, we learn how to use the Eclair compiler to compile and run
+Eclair programs to executable code. This tutorial assumes that
+[eclair is already installed on your machine](/docs/getting-started).
+
+In the commands on this page, `$ECLAIR` should be replaced with one of two options:
+
+1. `eclair` if you installed eclair directly on your system,
+2. `docker run --rm eclair:latest -v $(pwd):/code eclair` if you previously
+   setup the eclair compiler via docker
+
+## Discovering compiler commands and options
+
+You can use the `-h` or `--help` flag to get more information about how to use
+Eclair or one of it's subcommands:
+
+<CodeBlock
+  language="bash"
+  code={`
+$ $ECLAIR -h
+$ $ECLAIR compile -h
+`}
+/>
+
+This can be a useful way to discover the different features of the Eclair
+compiler.
+
+## Compiling to LLVM
+
+The `compile` subcommand can be used to compile Eclair programs to various
+output formats using the `--emit` flag. The default format is LLVM IR, but each
+of the internal representations during compilation can also be generated
+(sometimes useful for understanding how the program will evaluate).
+
+Given the following example Eclair program:
+
+<CodeBlock language="eclair" code={`
+@def edge(from: u32, to: u32) input.
+@def reachable(start: u32, end: u32) output.
+
+reachable(x, y) :-
+edge(x, y).
+
+reachable(x, y) :-
+edge(x, z),
+reachable(z, y).
+`} />
+
+Then it can be compiled to LLVM IR with the following command:
+
+<CodeBlock
+  language="bash"
+  code={`
+$ $ECLAIR compile --emit llvm path.eclair > path.ll
+`}
+/>
+
+## Compiling to native executable code
+
+After you have [compiled your program to LLVM](#compiling-to-llvm), you can use
+all of the tooling from the LLVM framework (such as `clang`, `llc`, `opt`, ...).
+
+For example, you can compile the generated LLVM file from the previous section
+to an object file using the next command:
+
+<CodeBlock
+  language="bash"
+  code={`
+$ clang -c -o path.o path.ll
+# OR:
+$ llc-14 -filetype=obj -o path.o path.ll
+`}
+/>
+
+After that you can turn the object file into a static library archive:
+
+<CodeBlock
+  language="bash"
+  code={`
+$ ar rcs path.a path.o
+`}
+/>
+
+The section about [integrating with other languages](#integrating-with-other-languages)
+will show how to link this library into a final executable.
+
+## Compiling to WebAssembly
+
+In order to run Eclair code compiled to WebAssembly, we first need to compile a
+general-purpose allocator since none are provided in WASM. This is different
+compared to the previous section where we could automatically re-use `malloc`
+and `free` from the system-provided libc).
+
+The code below shows how we can use [walloc](https://github.com/wingo/walloc)
+to use a WASM-specific allocator in our Eclair code:
+
+<CodeBlock
+  language="bash"
+  code={`
+# First we need to compile walloc.c
+$ git clone https://github.com/wingo/walloc
+$ cd walloc
+$ clang --target=wasm32 -mbulk-memory -nostdlib -c -o walloc.o walloc.c
+# Now we can compile the Eclair program and link it with walloc
+$ $ECLAIR compile --target wasm32 path.eclair > path.ll
+$ clang --target=wasm32 -mbulk-memory -nostdlib -c -o path.o path.ll
+$ wasm-ld --no-entry --import-memory -o path.wasm path.o walloc.o
+`}
+/>
+
+Note the use of the target flag to tell Eclair to generate WASM-specific code.
+After running these commands, a `path.wasm` file that can be imported and
+executed in Node.js or in a web browser.
+
+## Integrating with other languages
+
+Eclair is designed to be easily invoked from other languages. The Eclair
+program runs in the same process as the other language (also referred to as the
+_host language_). Data (in- and output facts) are send back and forth between
+the languages via API calls.
+
+The [runtime API](/docs/api) provided by Eclair provides all necessary
+functionality, but is quite low-level and error-prone to use by hand. For this
+reason, high-level language-specific bindings exist for the following languages
+to make integration with Eclair much easier:
+
+1. [Rust](#rust)
+2. [Haskell](#haskell)
+3. [Typescript and Javascript](#typescript-and-javascript)
+4. [C](#c)
+
+Missing bindings for your language? Let us know by submitting an issue on the
+[Eclair repository](https://github.com/luc-tielen/eclair-lang/issues).
+
+### Rust
+
+### Haskell
+
+### Typescript and Javascript
+
+### C
