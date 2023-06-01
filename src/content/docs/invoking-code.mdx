@@ -147,8 +147,84 @@ cargo instructions, simple instructions how to use, example code to run
 
 ### Haskell
 
-cabal instructions, instructions how to use, example code to run
-https://github.com/luc-tielen/eclair-haskell
+The [Haskell bindings](https://github.com/luc-tielen/eclair-haskell) can link
+with Eclair code that has been compiled to native code. The language bindings
+provide a lot of type safety given an accurate type-level description of the
+Datalog program.
+
+First, you will need to update your cabal or hpack project file to add the
+`eclair-haskell` dependency and so that `cabal` detects the Eclair files. The
+following snippet shows how to do this for a project that makes use of `hpack`:
+
+<CodeBlock language="bash" code={`
+executables:
+  eclair-example:
+    source-dirs: src
+    main: Main.hs
+    # Add eclair-haskell as a dependency
+    dependencies:
+      - eclair-haskell
+    # This assumes the library is stored under "cbits/"
+    extra-lib-dirs: cbits
+    # This will try to link with libpath.a
+    extra-libraries: path
+`} />
+
+Once this is done, you can generate a static library archive from the Eclair
+code like previously shown in [compiled to native
+code](#compiling-to-native-executable-code). Make sure that the resulting
+`libpath.a` is stored under the directory you mentioned in the `extra-lib-dirs`
+configuration.
+
+Now that all the files are in place, you can use the following code to bind to
+Eclair and serialize data back and forth between Haskell and Eclair:
+
+<CodeBlock language="haskell" code={
+`
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DerivingVia #-}
+{-# LANGUAGE UndecidableInstances #-}
+-- UndecidableInstances is only needed for the DerivingVia API
+
+module Main ( main ) where
+
+import qualified Language.Eclair as E
+import GHC.Generics
+
+data Edge
+  = Edge Word32 Word32
+  deriving (Generic)
+  deriving anyclass E.Marshal
+  deriving E.Fact
+  via E.FactOptions Edge 'E.Input "edge"
+
+data Reachable
+  = Reachable Word32 Word32
+  deriving (Show, Generic)
+  deriving anyclass E.Marshal
+  deriving E.Fact
+  via E.FactOptions Reachable 'E.Output "reachable"
+
+data Path = Path
+  deriving E.Program
+  via E.ProgramOptions Path '[Edge, Reachable]
+
+main :: IO ()
+main = do
+  -- "withEclair" automatically starts and stops Eclair.
+  -- It performs all necessary cleanup.
+  results <- E.withEclair Path $ \prog -> do
+    E.addFacts prog [Edge 1 2, Edge 2 3]
+    E.addFact prog $ Edge 4 5
+    E.run prog
+    E.getFacts prog
+  process results
+  where
+    process :: [Reachable] -> IO ()
+    process = traverse_ print
+`} />
 
 ### Typescript and Javascript
 
