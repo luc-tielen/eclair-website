@@ -44,11 +44,11 @@ Given the following example Eclair program:
 @def reachable(start: u32, end: u32) output.
 
 reachable(x, y) :-
-edge(x, y).
+  edge(x, y).
 
 reachable(x, y) :-
-edge(x, z),
-reachable(z, y).
+  edge(x, z),
+  reachable(z, y).
 `} />
 
 Then it can be compiled to LLVM IR with the following command:
@@ -82,7 +82,7 @@ After that you can turn the object file into a static library archive:
 <CodeBlock
   language="bash"
   code={`
-$ ar rcs path.a path.o
+$ ar rcs libpath.a path.o
 `}
 />
 
@@ -139,8 +139,100 @@ Missing bindings for your language? Let us know by submitting an issue on the
 
 ### Rust
 
+https://crates.io/crates/eclair_bindings
+https://crates.io/crates/eclair_bindings_derive
+https://crates.io/crates/eclair-builder
+
+cargo instructions, simple instructions how to use, example code to run
+
 ### Haskell
+
+cabal instructions, instructions how to use, example code to run
+https://github.com/luc-tielen/eclair-haskell
 
 ### Typescript and Javascript
 
+The Typescript and Javascript bindings are different compared to the other
+languages, since here we need to [compile Eclair to
+WebAssembly](#compiling-to-webassembly). This makes it possible to run Eclair
+both in the browser and in Node.js.
+
+To use Eclair in your project, add the
+[following dependency](https://www.npmjs.com/package/eclair-wasm-bindings):
+
+<CodeBlock language="bash" code={`
+$ npm install eclair-wasm-bindings
+`} />
+
+Next, we can use the language bindings to describe what the Eclair program
+looks like (which input and output facts). For the example that's been mentioned previously on this page, it looks as follows:
+
+<CodeBlock language="typescript" code={`
+import {
+  withEclair,
+  fact,
+  program,
+  U32,
+  INPUT,
+  OUTPUT,
+} from 'eclair-wasm-bindings';
+
+// Due to how WASM works, we need to provide Eclair enough memory
+// to run. The amount you need to provide depends on how much data
+// you will be processing with Eclair.
+const memory = new WebAssembly.Memory({
+  initial: 10,
+  maximum: 100
+});
+
+// Fetch and compile the WASM program.
+// This can be from anywhere on the internet!
+const { instance: wasmInstance } = await WebAssembly.instantiateStreaming(
+  fetch('/path/to/eclair_program.wasm'),
+  { env: { memory } }
+);
+
+// Now start Eclair using "withEclair". This automatically takes
+// care of resource cleanup as well.
+const results = withEclair(wasmInstance, memory, (handle) => {
+  // Next we define what the Eclair program looks like.
+  // Important: This has to match *exactly* with how you defined it
+  // in Eclair, otherwise you will get unexpected results!
+  const edge = fact('edge', INPUT, [U32, U32]);
+  const reachable = fact('reachable', OUTPUT, [U32, U32]);
+  const path = program(handle, [edge, reachable]);
+
+  // Now add facts to Eclair (LSP provides autocomplete!)
+  path.edge.addFact([1, 2]);
+  path.edge.addFacts([
+    [2, 3],
+    [3, 4],
+  ]);
+
+  // Let Eclair do the number crunching..
+  path.run();
+
+  // And finally you can get results back out!
+  const reachableFacts = path.reachable.getFacts();
+
+  // You can do anything with the results here..
+  console.log(reachableFacts);
+
+  // Or you can return the results so they can be used
+  // outside this function!
+  return reachableFacts;
+});
+`} />
+
+Using Typescript in combination with these bindings is highly recommended
+because of the heavy use of types. In the example above, the LSP would
+auto-complete all the input and output fact names, as well as the available
+methods on them.
+
 ### C
+
+directly link with llvm (uses low level api directly), look at /docs/api
+no help at all, easy to mistakes
+
+if your language has a C API, you can use this to call eclair (this is how the bindings work)
+all other languages build on top of this
