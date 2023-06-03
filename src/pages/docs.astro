@@ -17,37 +17,41 @@ const title = "Eclair docs";
         </div>
       </div>
     </header>
-	<div class="flex-grow">
-		<div class="flex flex-row pt-8">
-			<LeftSideBar/>
-			<div class="flex-grow px-12 flex flex-col items-center">
-				<article class="prose">
-					<h1 id="overview">Documentation</h1>
-					<p>
-						Welcome to the documentation for the Eclair programming language!
-						Eclair is a logical query language that compiles to LLVM IR, focused on quickly solving complex search- and graph-based problems.
-					</p>
-					<p>
-						The sidebar on the left contains an overview of all the different topics.
-						If you're new to Eclair, the links below are a great starting point.
-						Still have questions after reading the docs?
-						Ask a question on our <Link href="https://discord.gg/mC2arUrxKg">Discord server</Link>!
-					</p>
-					<h2>Getting started</h2>
-					<ul>
-						<li>
-							<Link href="/docs/getting-started">Getting started guides</Link>
-							<p>A tour of the Eclair language, and guides to start using it from your programming language of choice.</p>
-						</li>
-						<li>
-							<Link href="/docs/faq">Frequently Asked Questions</Link>
-							<p>Answers to commonly asked questions about Eclair.</p>
-						</li>
-					</ul>
-				</article>
-				<Footer/>
-			</div>
-			<div class="sm:w-48"/>
-		</div>
+    <div class="flex-grow">
+      <div class="flex flex-row pt-8">
+	<LeftSideBar/>
+	<div class="flex-grow px-12 flex flex-col items-center">
+	  <article class="prose">
+	    <h1 id="overview">Documentation</h1>
+	      <p>
+		Welcome to the documentation for the Eclair programming language!
+		Eclair is a logical query language that compiles to LLVM IR, focused on quickly solving complex search- and graph-based problems.
+	      </p>
+	    <p>
+	    The sidebar on the left contains an overview of all the different topics.
+	    If you're new to Eclair, the links below are a great starting point.
+	    Still have questions after reading the docs?
+	    Ask a question on our <Link href="https://discord.gg/mC2arUrxKg">Discord server</Link>!
+	    </p>
+	    <h2>Getting started</h2>
+	    <ul>
+	      <li>
+		<Link href="/docs/language-reference">Language reference</Link>
+		<p>A high-level overview of all the syntax and features in Eclair.</p>
+	      </li>
+	      <li>
+		<Link href="/docs/getting-started">Getting started guides</Link>
+		<p>Guides to start using Eclair from your programming language of choice.</p>
+	      </li>
+	      <li>
+		<Link href="/docs/faq">Frequently Asked Questions</Link>
+		<p>Answers to commonly asked questions about Eclair.</p>
+	      </li>
+	    </ul>
+	  </article>
+	  <Footer/>
 	</div>
+	<div class="sm:w-48"/>
+      </div>
+    </div>
 </BaseLayout>
