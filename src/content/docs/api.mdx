@@ -2,4 +2,222 @@
 title: Eclair runtime API
 ---
 
-Coming soon!
+import CodeBlock from "../../components/CodeBlock.tsx";
+
+Eclair is meant to be embedded and controlled from inside another _host
+language_. It exposes a tiny API that allows you to do all the high level
+operations:
+
+1. [Initializing the Eclair runtime](#initializing-the-eclair-runtime),
+2. [Serializing data from host language to Eclair](#serializing-data-from-host-language-to-eclair),
+3. [Running the Eclair program](#running-an-eclair-program),
+4. [Deserializing results from Eclair back to the host language](#deserializing-data-from-eclair-back-to-the-host-language),
+5. [Cleanup / teardown of the Eclair runtime](#cleanup-of-the-eclair-runtime).
+
+Note that the types of the API functions mentioned below are written down in C
+just as an indication, it's also completely possible to call these functions
+from JavaScript-based languages if Eclair code is compiled to WebAssembly for
+example.
+
+Eclair exposes a lot of low-level internal details in it's runtime API, giving
+a developer a lot of control over how they want to use Eclair. This comes at a
+cost though: it's easier to make mistakes and introduce bugs. For this reason,
+[high-level language bindings](/docs/invoking-code#integrating-with-other-languages)
+exist that make integrating with Eclair code a much easier task. Or you can
+[use the low level API directly](/docs/invoking-code#c).
+
+## Initializing the Eclair runtime
+
+Before you can call any of the other functions in Eclair, it's important that
+you first initialize the runtime. This can be done by invoking the
+`eclair_program_init` function:
+
+<CodeBlock language="c" code={`
+struct program;
+
+struct program* eclair_program_init();
+`}/>
+
+The function returns an opaque pointer (a "handle" to the Eclair program). The
+rest of the API always requires this pointer to be passed in as the first
+argument.
+
+## Serializing data from host language to Eclair
+
+Now that the runtime is initialized, you can start serializing data from your
+host language to Eclair. The language provides a couple of functions to add one
+or more facts:
+
+<CodeBlock language="c" code={`
+void eclair_add_fact(
+  struct program* program,
+  uint32_t fact_type,
+  uint32_t* fact_data
+);
+
+void eclair_add_facts(
+  struct program* program,
+  uint32_t fact_type,
+  uint32_t* fact_data,
+  uint32_t fact_count
+);
+`}/>
+
+One thing might immediately stand out: Eclair only accepts an array of
+`uint32_t` data. This is done for two reasons:
+
+1. Eclair only uses `uint32_t` internally to represent data (for both
+   performance and simplicity),
+2. It's better for performance when communicating data back and forth, since we
+   only need to do a single function call into Eclair with a single contiguous
+   array.
+
+The fact array should be filled with data of one fact directly followed by
+the next. For example, given this Eclair program:
+
+<CodeBlock language="eclair" code={`
+@def edge(u32, u32) input.
+`}/>
+
+If you wanted to push `edge(1, 2)` and `edge(2, 3)` into Eclair, you would need
+to create an array of this shape:
+
+<CodeBlock language="c" code={`
+uint32_t fact_data[] = {
+  1, 2,
+  3, 4
+};
+`}/>
+
+If you have facts that contain data that is not a `uint32_t` (e.g. a string
+value), you will need to first encode the string in Eclair. This can be done
+with the `eclair_encode_string` function that takes both the length of the
+string and a pointer to a byte-array (Eclair assumes UTF-8 encoding):
+
+<CodeBlock language="c" code={`
+uint32_t eclair_encode_string(
+  struct program*,
+  uint32_t string_length,
+  const char* string_data
+);
+`}/>
+
+The function returns a `uint32_t` value that represents the string, that you
+can insert at the right location into the fact array.
+
+One final thing to point out about `eclair_add_fact` and `eclair_add_facts` is
+the `fact_type` argument. In order to get the value for this argument, you will
+need to call `eclair_encode_string` with the name of the relation, to get the
+corresponding fact type value back.
+
+## Running an Eclair program
+
+Once you have serialized all your input facts into Eclair, you can now run your
+program. This is done by invoking the `eclair_program_run` function:
+
+<CodeBlock language="c" code={`
+void eclair_program_run(struct program*);
+`}/>
+
+This will run the Eclair Datalog program from start to end and calculate all
+derived facts.
+
+## Deserializing data from Eclair back to the host language
+
+Deserializing the data back into the host language is similar to serialization
+of data. Eclair works here also with a single `uint32_t` array of data. For
+deserialization a few more helper functions are required to process the
+returned array of data. The functions related to deserialization are the following:
+
+<CodeBlock language="c" code={`
+uint32_t eclair_fact_count(
+  struct program*,
+  uint32_t fact_type
+);
+
+uint32_t* eclair_get_facts(
+  struct program*,
+  uint32_t fact_type
+);
+
+void eclair_free_buffer(uint32_t* data);
+`}/>
+
+`eclair_fact_count` returns the total amount of facts returned for a relation,
+while `eclair_get_facts` returns the actual array containing fact data.
+`eclair_free_buffer` is needed since the returned `uint32_t`-array is
+dynamically allocated on the heap and needs to be manually freed by the host
+language after it is no longer needed.
+
+These 3 functions allow you to write the following code for processing fact
+results in the host language:
+
+<CodeBlock language="c" code={`
+uint32_t fact_count = eclair_fact_count(program, fact_type);
+uint32_t* data = eclair_get_facts(program, fact_Type);
+
+for (uint32_t i = 0; i < fact_count; i++) {
+   // Process each fact in the array here.
+   // Be sure to index the facts in the array properly!
+}
+
+eclair_free_buffer(data);
+`}/>
+
+If you have string values inside your fact data, you will manually need to
+call `eclair_decode_string` to go from the `uint32_t` value back to the
+underlying string byte-array. The signature of this function is as follows:
+
+<CodeBlock language="c" code={`
+struct symbol {
+  uint32_t length;
+  const char* data;
+};
+
+struct symbol* eclair_decode_string(
+  struct program*,
+  uint32_t string_index
+);
+`}/>
+
+The returned symbol does _not_ need to be freed, this will happen
+automatically when the Eclair program is shutdown (see next section).
+
+If you pass in a string index that is not internally used by Eclair, you will
+get back a `NULL` pointer because the symbol could not be found. Always check
+if the returned symbol is valid.
+
+## Cleanup of the Eclair runtime
+
+Once you are finished using Eclair, you need to shutdown the runtime. This is a
+required manual operation since Eclair has no garbage collector and performs
+manual memory management under the hood.
+
+Eclair provides a single function for this:
+
+<CodeBlock language="c" code={`
+void eclair_program_destroy(struct program*);
+`} />
+
+Calling this function will free up any memory still in use by Eclair, so that
+the system can use it for other purposes. After this point it's no longer valid
+to call other functions of the API.
+
+## Allocating memory
+
+When compiling for the WebAssembly target, Eclair also needs to expose `malloc`
+and `free` for allocating memory inside the `WebAssembly.Memory` buffer. These
+functions are exposed as `eclair_malloc` and `eclair_free` and have the same
+function signatures as the libc counterpart:
+
+<CodeBlock language="c" code={`
+void* eclair_malloc(uint32_t num_bytes);
+void  eclair_free(void* pointer);
+`}/>
+
+
+Each time you need to push an array of data into Eclair (e.g. when adding facts
+or serializing a string), you first need to do a call to `eclair_malloc` and use
+the returned address to fill the WebAssembly memory buffer with data. After the
+data is pushed into Eclair and is no longer in use, the data needs to be freed
+with `eclair_free`.
