@@ -7,6 +7,7 @@ const SUPPORTED_LANGUAGES = [
   "c",
   "llvm",
   "typescript",
+  "rust",
 ] as const;
 
 interface CodeBlockProps {
@@ -90,6 +91,8 @@ const toLanguage = (str: (typeof SUPPORTED_LANGUAGES)[number]) => {
       return Language.LLVM;
     case "typescript":
       return Language.TS;
+    case "rust":
+      return Language.Rust;
     default:
       throw new Error(`Unsupported language: ${str}`);
   }

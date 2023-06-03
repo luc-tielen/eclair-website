@@ -139,11 +139,96 @@ Missing bindings for your language? Let us know by submitting an issue on the
 
 ### Rust
 
-https://crates.io/crates/eclair_bindings
-https://crates.io/crates/eclair_bindings_derive
-https://crates.io/crates/eclair-builder
+Calling Eclair code from Rust requires the following libraries:
 
-cargo instructions, simple instructions how to use, example code to run
+1. [eclair_bindings](https://crates.io/crates/eclair_bindings)
+2. [eclair_bindings_derive](https://crates.io/crates/eclair_bindings_derive)
+3. [eclair-builder](https://crates.io/crates/eclair-builder)
+
+You can add these dependencies with `cargo`:
+
+<CodeBlock language="bash" code={`
+$ cargo add eclair_bindings
+$ cargo add eclair_bindings_derive
+$ cargo add --build eclair-builder
+`}/>
+
+Next, we need to add a custom `build.rs` that tells Rust how to link the Eclair
+code into a final executable. The `eclair-builder` crate gives us a convenient
+way to do just this:
+
+<CodeBlock language="rust" code={`
+extern crate eclair_builder;
+
+use std::env;
+
+fn main() {
+    // NOTE: for now Eclair requires DATALOG_DIR to be set to
+    // find the Datalog files used by the Eclair compiler.
+    // Once the compiler is bootstrapped, this will no longer
+    // be needed.
+    let datalog_dir = env::var("DATALOG_DIR")
+      .expect("'DATALOG_DIR' env var needs to be set!");
+
+    // The next line of code tells Rust where to find each of
+    // the tools required to build Eclair code.
+    eclair_builder::Build::new()
+        .eclair("eclair")
+        .clang("clang-14")
+        .datalog_dir(&datalog_dir)
+        .file("src/analysis/path.eclair")
+        .compile();
+}
+`}/>
+
+The code above tells `cargo` and `rustc` how to link with our Eclair code. Now
+that our Rust project is fully configured, we can write the code that runs our
+Eclair program using the `eclair_bindings` and `eclair_bindings_derive` crates:
+
+<CodeBlock language="rust" code={`
+extern crate eclair_bindings;
+extern crate eclair_bindings_derive;
+
+use eclair_bindings::*;
+use eclair_bindings_derive::fact;
+
+// Path is a struct used as a handle for the Eclair program.
+struct Path;
+
+// For each fact, we create another struct.
+// A proc-macro generates all the necessary bindings.
+#[fact(program = Path, direction = input, name = "edge")]
+struct Edge(u32, u32);
+
+// Named struct fields are also supported.
+#[fact(program = Path, direction = output, name = "reachable")]
+struct Reachable {
+    start: u32,
+    end: u32,
+}
+
+fn main() {
+    // Start the Eclair runtime:
+    let mut eclair = Program::new(Path);
+
+    // Add some input facts:
+    let edges = vec![Edge(1, 2), Edge(2, 3)];
+    eclair.add_facts(edges.into_iter());
+    eclair.add_fact(Edge(3, 4));
+
+    // Calculate all results in Eclair:
+    eclair.run();
+
+    // Retrieve output facts:
+    let results: Vec<Reachable> = eclair.get_facts().collect();
+
+    // Process results ...
+}
+`} />
+
+As you can see, the bindings provide a concise type-safe DSL that should
+prevent most logic errors while sending data back and forth between Rust and
+Eclair.
 
 ### Haskell
 
@@ -307,8 +392,126 @@ methods on them.
 
 ### C
 
-directly link with llvm (uses low level api directly), look at /docs/api
-no help at all, easy to mistakes
+Because Eclair compiles down to LLVM and has a C-ABI compatible API, it is
+possible to call Eclair from C (or any language that supports the C FFI). In
+fact, this is how all the different language bindings support Eclair under the
+hood.
 
-if your language has a C API, you can use this to call eclair (this is how the bindings work)
-all other languages build on top of this
+For C, there is no high-level API to use though. Only the low-level [runtime
+API](/docs/api) is available. Because of this, it is harder to use and easier
+to make mistakes. On the flip side, technically you could now also perform
+(potentially unsafe) tricks to save time sending data back and forth with
+Eclair (by avoiding copies, passing pointers around, ...).
+
+The code below is an example of how you could run the Eclair program directly
+from C:
+
+<CodeBlock language="c" code={`
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+
+// The Eclair runtime is represented by an opaque pointer
+// to a program struct.
+struct program;
+
+// The low-level Eclair API is accessed via extern definitions
+extern struct program* eclair_program_init();
+extern void eclair_program_destroy(struct program*);
+extern void eclair_program_run(struct program*);
+extern void eclair_add_facts(
+  struct program*,
+  uint32_t fact_type,
+  uint32_t* data,
+  size_t fact_count
+);
+extern void eclair_add_fact(
+  struct program*,
+  uint32_t fact_type,
+  uint32_t* data
+);
+extern uint32_t* eclair_get_facts(
+  struct program*,
+  uint32_t fact_type
+);
+extern uint32_t eclair_fact_count(
+  struct *program,
+  uint32_t fact_type
+);
+extern void eclair_free_buffer(uint32_t* data);
+extern uint32_t eclair_encode_string(
+  struct program*,
+  uint32_t length,
+  const char* str
+);
+extern struct symbol* eclair_decode_string(
+  struct program*,
+  uint32_t index
+);
+
+int main(int argc, char** argv)
+{
+    struct program* prog = eclair_program_init();
+
+    // For each fact type, we need to retrieve the unique number
+    // that Eclair uses to represent it.
+    uint32_t edge_fact_type = eclair_encode_string(
+      prog, 4, "edge"
+    );
+    uint32_t reachable_fact_type = eclair_encode_string(
+      prog, 9, "reachable"
+    );
+
+    // Adding facts:
+
+    // Facts are stored in a flat, contiguous array.
+    // *NO* checks are made regarding size and fact count!
+    uint32_t data[] = {
+        1, 2, // edge(1,2)
+        2, 3  // edge(2,3)
+    };
+    eclair_add_facts(prog, edge_fact_type, data, 2);
+
+    // Calculating results with Eclair:
+    eclair_program_run(prog);
+
+    // Retrieving output facts:
+    uint32_t fact_count = eclair_fact_count(
+      prog, reachable_fact_type
+    );
+
+    // Output data is again in a flat, contiguous array.
+    // *NO* checks are made regarding size and fact count!
+    uint32_t* data_out = eclair_get_facts(
+      prog, reachable_fact_type
+    );
+
+    // Process results...
+    for (uint32_t i = 0; i < fact_count; i++) {
+      printf(
+        "Reachable: (%d, %d)\\n",
+        data_out[i * 2], data_out[i * 2 + 1]
+      );
+    }
+
+    // Cleanup of dynamic allocated data when no longer needed.
+    eclair_free_buffer(data_out);
+
+    // Cleanup of rest of the Eclair runtime.
+    eclair_program_destroy(prog);
+    return 0;
+}
+`} />
+
+As you can probably tell by now, this API is much harder to use correctly than
+the other language bindings. It should only be used when no bindings exist
+for your language of choice, or when working in C or C++.
+
+You can directly compile and link the above C code with the [generated LLVM IR
+code](#compiling-to-llvm) as follows using clang:
+
+<CodeBlock language="bash" code={`
+$ clang -o program main.c path.ll
+`}/>
+
