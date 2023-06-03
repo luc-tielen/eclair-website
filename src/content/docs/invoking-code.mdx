@@ -393,9 +393,9 @@ methods on them.
 ### C
 
 Because Eclair compiles down to LLVM and has a C-ABI compatible API, it is
-possible to call Eclair from C (or any language that supports the C FFI). In
-fact, this is how all the different language bindings support Eclair under the
-hood.
+possible to call Eclair from C (or any language that supports C via a Foreign
+Function Interface (a.k.a. FFI)). In fact, this is how all the different
+language bindings support Eclair under the hood.
 
 For C, there is no high-level API to use though. Only the low-level [runtime
 API](/docs/api) is available. Because of this, it is harder to use and easier
@@ -515,3 +515,9 @@ code](#compiling-to-llvm) as follows using clang:
 $ clang -o program main.c path.ll
 `}/>
 
+### Other languages
+
+Didn't see your language in the list of supported language bindings? [Open an
+issue](https://github.com/luc-tielen/eclair-website/issues) or consider
+contributing your own language bindings. As long as your language supports a C
+FFI, you should be able to build your own bindings on top of them.
