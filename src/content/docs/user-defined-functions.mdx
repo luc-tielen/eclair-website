@@ -160,8 +160,8 @@ full_name("Jane Doe").
 full_name("John Smith").
 
 matching_name(name) :-
-full_name(name),
-match(name, ".\*Doe").
+   full_name(name),
+   match(name, ".\*Doe").
 `
 } />
 
@@ -177,9 +177,9 @@ Another example that uses functions to calculate complex expressions:
 @def result(u32) output.
 
 result(z) :-
-y = 123,
-z = my_function(y, x),
-value(x).
+   y = 123,
+   z = my_function(y, x),
+   value(x).
 `
 } />
 

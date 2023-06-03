@@ -2,4 +2,149 @@
 title: Typesystem
 ---
 
-Coming soon!
+import CodeBlock from "../../components/CodeBlock.tsx";
+
+Eclair is a statically typed language, meaning that all types are known at
+compilation time. As part of the compilation process, Eclair checks the types
+of all values in a program to ensure it is valid. The rest of this page
+describes how the typesystem works.
+
+## Types in a program
+
+### Primitive types
+
+At the moment, Eclair supports two primitive types: `string` (UTF-8 encoded
+strings) and `u32` (unsigned 32-bit integers). Note that there is no support
+for signed 32-bit integers yet, but this will be added in the future.
+
+### Literals and operators
+
+The type of literals can be inferred based on their syntax. This is due to the
+fact that [integers](/docs/language-reference#integers) have different syntax
+compared to [strings](/docs/language-reference#strings).
+
+Operators are built in to the language and have pre-defined types. Arithmetic
+operators and comparisons are only supported on integers. Both left- and
+right-hand-side arguments need to be an integer type, and return an
+integer-typed value as well. Equality operators (`=` and `!=`) are supported
+on all primitive types.
+
+### Variables
+
+Variables can be used in rule clauses as arguments to a relation, in a
+comparison or equality constraint.
+
+The type of a variable is based on how it is used inside a rule. When a
+variable is used in a rule for the first time, Eclair will assign a type to
+the variable. If the same variable is later used again in the same rule, then
+the previously assigned type is checked against the current expected type.
+
+When variables are used in a relation or externally defined function or
+constraint, they are checked against the corresponding argument in the
+definition.
+
+When a variable is used in a comparison or equality operator, Eclair tries to
+infer the type of the variable based on either the operator itself, or on the
+other argument used in the operator. If Eclair fails to determine the types of
+one or more variables in a rule, an error is thrown and compilation is aborted.
+
+[Wildcards](/docs/language-reference#wildcards) are treated the same as
+variables, but with the main difference that each wildcard is treated as a
+unique variable. (Two wildcards can have different types, unlike variables of
+the same name.)
+
+### Typed holes
+
+[Typed holes](/docs/language-reference#typed-holes) are _placeholders_ for a
+part of the program that is not complete yet. They can be very useful when you
+are writing your program and still figuring out part of logical rule, or when
+debugging if you want to know more information about the types of values in a
+function.
+
+For example, given the function below:
+
+<CodeBlock language="eclair" code={`
+@def edge(u32, u32) input.
+@def reachable(u32, u32) output.
+
+reachable(x, z) :-
+  edge(x, ?),  // <-- typed hole here
+  reachable(y, z).
+`} />
+
+When you try to compile this Eclair program (try it out!), the compiler will
+give you an error message listing all possible candidate variables.
+
+The typesystem treats each typed hole as a unique variable.
+Depending how it is used (in a rule or in an equality clause), the compiler
+will try to figure out the best matching type for the hole. After this, it
+collects all information about the rest of the types in a fact or rule and
+presents the information in an error message.
+
+### Relations
+
+Relations (both facts and rules) contain one or more arguments. Each of these
+arguments needs to have the type declared up front. The typesystem uses this
+information to later check the type of a value against this expected type.
+
+Relations do not have any return type and so cannot be used in e.g. arithmetic
+expressions or equality constraints.
+
+As an example, in the following snippet "relation" is a relation that consists
+of a `string` and `u32` value:
+
+<CodeBlock language="eclair" code={`
+@def relation(string, u32).
+`}/>
+
+### External definitions
+
+From the point of view of the typechecker, [external
+definitions](/docs/user-defined-functions) are handled similar to
+[relations](#relations).
+
+The main difference is that externally defined functions (those defined with a
+return type), **can** be used in arithmetic expressions and equality
+constraints.
+
+## Typesystem rules
+
+The following is a description in plain English how the typechecker checks an
+Eclair program:
+
+1. The typechecker first collects all type-level information about relations
+   and external definitions.
+2. Afterwards, it checks the types of each top level declaration (facts and
+   rules) independently.
+3. Values in a top-level fact are checked from left to right.
+4. Values in a top-level rule are checked from left to right, and from top
+   to bottom.
+5. All relations or externally defined functions need to be defined.
+6. The number of arguments used in a fact or rule is checked against the
+   definition. An error is reported if it does not match the expected number of
+   arguments.
+7. If type-level information is available (e.g. when using a variable as an
+   argument to a relation), then the value will be checked against that type.
+   Otherwise the type will be inferred. Type inference of values is scoped to a
+   single rule.
+8. A user-defined function can't be used in a location where a relation or
+   user-defined constraint is expected, and vice versa.
+9. Each primitive type is treated as a distinct type. You will get a
+   type-mismatch error if you use a string value where an integer is expected
+   and vice versa.
+10. The type of literals is inferred.
+11. Arguments passed to operators are checked against their pre-defined types.
+    Arguments passed to equality constraints are inferred to see if both
+    arguments have the same types. A type-mismatch or unification error will be
+    raised if an inconsistency is detected.
+12. A typed hole will always raise a type error to show the type information
+    the compiler deduced for that rule.
+
+If no errors are found while checking all these rules, the program is
+considered to be valid with respect to the types.
+
+## Future work
+
+For now the typesystem is still relatively simple, but it will be extended
+to support polymorphic relations (for code reuse), support for other
+primitive types, user-defined types, ... Stay tuned! 😊
