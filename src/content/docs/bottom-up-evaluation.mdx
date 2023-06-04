@@ -2,4 +2,204 @@
 title: Bottom up evaluation
 ---
 
-Coming soon!
+import CodeBlock from "../../components/CodeBlock.tsx";
+
+Eclair is a high-level declarative logic query language (a Datalog variant). At
+first glance, it might not be immediately obvious how these kinds of programs
+are executed. This page aims to explain step-by-step how each part of an
+Eclair program is evaluated using some examples.
+
+## Top-level facts
+
+Top-level, hard-coded facts are the easiest to evaluate. When a fact is
+encountered in a program, Eclair will add the fact to the corresponding
+relation.
+
+A fact will only be added to a relation if it contains new information; if a
+fact with the same arguments was already present, the redundant information
+will be discarded.
+
+The facts that are hard-coded into the Eclair program will be combined with the
+facts that are dynamically [added via the
+API](/docs/api#serializing-data-from-host-language-to-eclair).
+
+When evaluating the following snippet, two facts would be added to the
+`example` relation.
+
+<CodeBlock language="eclair" code={`
+@def example(u32, u32).
+
+example(1, 2).
+example(2, 3).
+`} />
+
+## Rules
+
+For rules we make a distinction between non-recursive rules and recursive
+rules, since they are evaluated in completely different ways.
+
+### Non-recursive rules
+
+Non-recursive rules are rules where none of the clauses in the rule body refer
+to the relation in the rule head itself.
+
+The simplest example of a non-recursive rule is a rule with a single clause:
+
+<CodeBlock language="eclair" code={`
+@def a(u32) output.
+@def b(u32, u32) input.
+
+a(x) :-
+  b(x, _).
+`} />
+
+To evaluate the rule in the above example, Eclair will first search for all
+facts of relation `b`. After that, it copies over the first column of each fact
+in relation `b` to a new fact in relation `a`.
+
+Things get slightly more complicated when a rule has multiple clauses. Take the
+following code snippet:
+
+<CodeBlock language="eclair" code={`
+@def a(u32, u32) output.
+@def b(u32, u32) input.
+@def c(u32, u32) input.
+
+a(x, z) :-
+  b(x, y),
+  c(y, z).
+`} />
+
+In order to find all facts for relation `a`, Eclair first has to find all facts
+in relation `b`. Then, it has to find all matching facts in relation `c` such
+that the first column of `c` is equal to the second column of `b` (variables
+with the same name add an implicit equality constraint!). Each time Eclair
+finds a set of data that matches this pattern, it will add the result to the
+relation `a`.
+
+### Recursive rules
+
+Now that we understand non-recursive rules, recursive rules are next. These are
+rules where one of the clauses in the rule body refers to the same relation in
+the rule head.
+
+The main difference here is that this effectively means that Eclair will have
+to keep applying the same rule over and over again in a loop until it no
+longer can find any new information.
+
+A good example of a recursive rule is the recursive case of the path example
+used in a few other places on this website. Here's the relevant part of that
+code:
+
+<CodeBlock language="eclair" code={`
+@def edge(u32, u32).
+@def reachable(u32, u32).
+
+reachable(x, z) :-
+  edge(x, y),
+  reachable(y, z).
+`} />
+
+In order to evaluate this rule, Eclair will have to first have to find all
+`edge` facts, and then look for matching `reachable` facts. If it finds new
+facts, it will need to apply the same rule again.
+
+**Important**: Eclair only takes into account facts derived from the last
+iteration to avoid a lot of unnecessary computation. This technique is
+called [semi-naive evaluation](https://en.wikipedia.org/wiki/Datalog#Semi-na%C3%AFve_evaluation).
+
+You might notice that a recursive rule by itself can't result in any facts.
+(There would be no facts to start the recursion from!) This is why a recursive
+rule should always be paired with one or more non-recursive rules or top-level
+facts.
+
+## Stratification
+
+So far, we've looked at the evaluation order of different situations one by
+one. In a real program however, all these situations can occur simultaneously.
+
+Eclair uses a **stratification** algorithm in order to evaluate a program in
+the most optimal way. It does this by performing a topological sort of all
+declarations, based on the dependencies between relations. Mutually recursive
+relations are grouped together and evaluated in a single unit.
+
+Stratification guarantees that rules are always executed in the same
+deterministic order, using bottom-up evaluation. If a program can't be
+stratified, the compiler will generate an error and abort compilation.
+
+In the snippet below, the code would be evaluated in the following order:
+
+1. First, the top-level facts are evaluated (facts have no data dependencies).
+   The hard-coded facts are combined with facts added via the API.
+2. Next, the non-recursive rule is evaluated, since it only depends on the
+   `edge` relation.
+3. Finally, the recursive rule is repeatedly evaluated until no new results can
+   be found. (It has a dependency both on `edge` and `reachable`.)
+
+<CodeBlock language="eclair" code={`
+@def edge(u32, u32) input.
+@def reachable(u32, u32) output.
+
+// Step 3
+reachable(x, z) :-
+  edge(x, y),
+  reachable(y, z).
+
+// Step 2
+reachable(x, y) :-
+  edge(x, y).
+
+// Step 1
+edge(1, 2).
+edge(2, 3).
+edge(3, 4).
+`} />
+
+## Wrapping up
+
+It would take too long to explain each possible situation, but the previous
+examples should have given you some intuition how programs are evaluated. You
+can use the intermediate `RA` format (short for _relational algebra_) generated
+by the compiler, if you want to know how eclair exactly evaluates your code.
+You can generate `RA` output using the following command:
+
+<CodeBlock language="bash" code={`
+$ eclair compile --emit ra program.eclair
+`} />
+
+This will print out the intermediary format as pseudo code to the screen and
+will explain how Eclair code is evaluated using set semantics. (This is similar
+to how evaluation was explained on this page.)
+
+If we generate the `RA` pseudo-code for the last snippet from the previous
+section, we get the output below. You can try comparing it with the previous
+explanation:
+
+<CodeBlock language="eclair" code={`
+project (3, 4) into edge
+project (2, 3) into edge
+project (1, 2) into edge
+
+search edge as edge0 do
+  project (edge0[0], edge0[1]) into reachable
+
+merge reachable delta_reachable
+
+loop do
+  purge new_reachable
+  search edge as edge0 do
+    search delta_reachable as delta_reachable1 do
+      if (edge0[0], delta_reachable1[1]) ∉ reachable do
+        if edge0[1] = delta_reachable1[0] do
+          project (edge0[0], delta_reachable1[1]) into new_reachable
+  exit if counttuples(new_reachable) = 0
+  merge new_reachable reachable
+  swap new_reachable delta_reachable
+`} />
+
+The `RA` format should be seen as an advanced tool and is definitely not needed
+all the time, but it can give you a greater understanding of what's exactly
+happening under the hood.
+
+For more information on the idea behind the `RA` format, check out this
+[paper by the Soufflé Datalog authors](https://souffle-lang.github.io/pdf/cc.pdf).
