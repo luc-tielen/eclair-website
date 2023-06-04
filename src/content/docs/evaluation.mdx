@@ -1,5 +1,5 @@
 ---
-title: Bottom up evaluation
+title: Query evaluation
 ---
 
 import CodeBlock from "../../components/CodeBlock.tsx";
@@ -50,7 +50,7 @@ The simplest example of a non-recursive rule is a rule with a single clause:
 @def b(u32, u32) input.
 
 a(x) :-
-  b(x, _).
+b(x, \_).
 `} />
 
 To evaluate the rule in the above example, Eclair will first search for all
@@ -66,8 +66,8 @@ following code snippet:
 @def c(u32, u32) input.
 
 a(x, z) :-
-  b(x, y),
-  c(y, z).
+b(x, y),
+c(y, z).
 `} />
 
 In order to find all facts for relation `a`, Eclair first has to find all facts
@@ -96,8 +96,8 @@ code:
 @def reachable(u32, u32).
 
 reachable(x, z) :-
-  edge(x, y),
-  reachable(y, z).
+edge(x, y),
+reachable(y, z).
 `} />
 
 In order to evaluate this rule, Eclair will have to first have to find all
@@ -142,12 +142,12 @@ In the snippet below, the code would be evaluated in the following order:
 
 // Step 3
 reachable(x, z) :-
-  edge(x, y),
-  reachable(y, z).
+edge(x, y),
+reachable(y, z).
 
 // Step 2
 reachable(x, y) :-
-  edge(x, y).
+edge(x, y).
 
 // Step 1
 edge(1, 2).
@@ -163,9 +163,12 @@ can use the intermediate `RA` format (short for _relational algebra_) generated
 by the compiler, if you want to know how eclair exactly evaluates your code.
 You can generate `RA` output using the following command:
 
-<CodeBlock language="bash" code={`
+<CodeBlock
+  language="bash"
+  code={`
 $ eclair compile --emit ra program.eclair
-`} />
+`}
+/>
 
 This will print out the intermediary format as pseudo code to the screen and
 will explain how Eclair code is evaluated using set semantics. (This is similar
@@ -181,20 +184,20 @@ project (2, 3) into edge
 project (1, 2) into edge
 
 search edge as edge0 do
-  project (edge0[0], edge0[1]) into reachable
+project (edge0[0], edge0[1]) into reachable
 
 merge reachable delta_reachable
 
 loop do
-  purge new_reachable
-  search edge as edge0 do
-    search delta_reachable as delta_reachable1 do
-      if (edge0[0], delta_reachable1[1]) ∉ reachable do
-        if edge0[1] = delta_reachable1[0] do
-          project (edge0[0], delta_reachable1[1]) into new_reachable
-  exit if counttuples(new_reachable) = 0
-  merge new_reachable reachable
-  swap new_reachable delta_reachable
+purge new_reachable
+search edge as edge0 do
+search delta_reachable as delta_reachable1 do
+if (edge0[0], delta_reachable1[1]) ∉ reachable do
+if edge0[1] = delta_reachable1[0] do
+project (edge0[0], delta_reachable1[1]) into new_reachable
+exit if counttuples(new_reachable) = 0
+merge new_reachable reachable
+swap new_reachable delta_reachable
 `} />
 
 The `RA` format should be seen as an advanced tool and is definitely not needed
