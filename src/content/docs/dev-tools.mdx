@@ -1,0 +1,131 @@
+---
+title: Developer tools
+---
+
+import CodeBlock from "../../components/CodeBlock.tsx";
+
+This page contains installation instructions for various development tools that
+can help with Eclair development.
+
+## Editors
+
+Right now there is support for Eclair in editors via editor-agnostic tools such
+as [tree-sitter](https://tree-sitter.github.io/tree-sitter/) and
+[LSP](https://microsoft.github.io/language-server-protocol/).
+Editor-specific plugins or installation instructions might not be available
+yet.
+
+Missing instructions for your favorite editor?
+[Please open an issue on Github](https://github.com/luc-tielen/eclair-lang/issues)
+or consider contributing!
+
+## Syntax highlighting
+
+There's a [tree-sitter grammar](https://github.com/luc-tielen/tree-sitter-eclair)
+available for Eclair that can be used for syntax highlighting if your editor
+supports it. It should work for any editor that supports syntax highlighting.
+
+### Neovim
+
+You can setup syntax highlighting in Neovim using the
+[nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) package.
+Run the following commands in your shell to add support for Eclair syntax
+highlighting:
+
+<CodeBlock
+  language="bash"
+  code={`
+$ git clone git@github.com:luc-tielen/tree-sitter-eclair.git && cd tree-sitter-eclair
+$ npm install
+$ ./node_modules/tree-sitter-cli/tree-sitter generate
+$ ./node_modules/tree-sitter-cli/tree-sitter test
+# The directory might be different based on your package manager.
+# Here we are assuming "packer":
+$ mkdir -p ~/.local/share/nvim/site/pack/packer/start/nvim-treesitter/queries/eclair
+$ cp queries/highlights.scm ~/.local/share/nvim/site/pack/packer/start/nvim-treesitter/queries/eclair/
+`}
+/>
+
+Then, open Neovim and add the following code to your `init.lua`:
+
+<CodeBlock
+  language="lua"
+  code={`
+local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
+parser_config.eclair = {
+  install_info = {
+    -- Change directory to where you cloned the repo
+    url = "/path/to/tree-sitter-eclair",
+    files = {"src/parser.c"}
+  }
+}
+
+vim.cmd 'au BufNewFile,BufRead \*.eclair set filetype=eclair'
+`}
+/>
+
+Finally, switch to normal mode and run the following command:
+
+<CodeBlock
+  language="bash"
+  code={`
+:TSInstall eclair
+`}
+/>
+
+Now you should have syntax highlighting for any file with the ".eclair" extension!
+
+## Language Server
+
+Eclair provides a built-in LSP server via the `lsp` subcommand. Currently it
+supports the following features:
+
+1. Show compiler errors directly from your editor
+2. Return type information of a value
+3. Highlight uses of a variable (references)
+
+The LSP can be started as follows:
+
+<CodeBlock
+  language="bash"
+  code={`
+$ export DATALOG_dir=/path/to/eclair/cbits/
+$ eclair lsp
+`}
+/>
+
+**Note:** For now, the environment variable `$DATALOG_DIR` needs to be set and
+point to the `cbits/` directory of the eclair repository. This is only
+temporary until the compiler is bootstrapped (then the whole compiler will
+become a single binary).
+
+### Neovim
+
+The Eclair LSP can be setup using the
+[nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) package. (The LSP is
+not available via [Mason](https://github.com/williamboman/mason.nvim) yet, so
+it has to be installed with manual code.)
+
+<CodeBlock
+  language="lua"
+  code={`
+local lsp_util = require("lspconfig.util")
+
+require('lspconfig.configs').eclair = {
+  default_config = {
+    cmd = { 'eclair', 'lsp' },
+    filetypes = { 'eclair' },
+    root_dir = lsp_util.find_git_ancestor,
+    single_file_support = true,
+  }
+}
+
+require('lspconfig').eclair.setup {}
+
+-- NOTE: Also add keybindings for LSP functionality.
+-- (See nvim-lspconfig docs.)
+`}
+/>
+
+Then try to open a file with the ".eclair" extension and try typing some code.
+You should start to see live feedback from the compiler.
