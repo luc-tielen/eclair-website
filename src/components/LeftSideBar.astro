@@ -1,17 +1,41 @@
 ---
-import { getCollection } from "astro:content";
+import { CollectionEntry, getCollection } from "astro:content";
 
-interface DocPage {
-  slug: string;
-  title: string;
-  // TODO add tags so pages can be grouped together based on that?
+type Docs = CollectionEntry<'docs'>;
+type DocPage = Docs['data'] & { slug: Docs['slug']};
+type DocSection = DocPage['section'];
+
+const docPages: DocPage[] = (await getCollection("docs")).map(docPage => ({
+  ...docPage.data,
+  slug: docPage.slug
+}));
+
+const sectionOrder = (section: DocSection) => {
+  switch (section) {
+    case "Getting started":
+      return 0;
+    case "Language":
+      return 1;
+    case "Runtime":
+      return 2;
+  }
 }
 
-const docs = await getCollection("docs");
-const docPages: DocPage[] = docs.map((doc) => ({
-  slug: doc.slug,
-  title: doc.data.title
-}))
+const startMap: Map<DocSection, DocPage[]> = new Map()
+const docPagesGroupedBySection: [DocSection, DocPage[]][] =
+  [...docPages.reduce((acc, docPage) => {
+      const pages = acc.get(docPage.section) ?? []
+      return acc.set(docPage.section, pages.concat(docPage))
+    }, startMap)
+    .entries()
+  ]
+  .sort(([section1], [section2]) => {
+    return sectionOrder(section1 as DocSection) - sectionOrder(section2 as DocSection);
+  })
+  .map(([section, pages]) => {
+    const sortedPages = pages.concat().sort((page1, page2) => page1.order - page2.order);
+    return [section, sortedPages];
+  });
 
 ---
 
@@ -19,26 +43,31 @@ const docPages: DocPage[] = docs.map((doc) => ({
   <h2 class="flex flex-col items-center pb-1 font-medium">
     Documentation
   </h2>
-  <ul id="left-scrollbar" class="sticky h-screen overflow-y-auto top-0 bottom-0 pt-8 pl-8 w-48 flex flex-col text-slate-700">
-    {docPages.map(docPage =>
-      <li class="flex items-center">
-	<svg
-	  width="3"
-	  height="24"
-	  viewBox="0 -9 3 24"
-	  class="inline-block mr-2 text-slate-400 overflow-visible group-hover:text-slate-600"
-	>
-	  <path
-	    d="M0 0L3 3L0 6"
-	    fill="none"
-	    stroke="currentColor"
-	    stroke-width="1.5"
-	    stroke-linecap="round" />
-	</svg>
-	<a href={`/docs/${docPage.slug}`} class="hover:text-slate-900">
-	  {docPage.title}
-	</a>
-      </li>
-    )}
-  </ul>
+  <div id="left-scrollbar" class="sticky h-screen overflow-y-auto top-0 bottom-0 pt-8 pl-8 w-48 flex flex-col text-slate-700">
+    {docPagesGroupedBySection.map(([section, pages]) => (
+      <h3 class="font-semibold pl-3 pt-3 pb-2">{section}</h3>
+      <ul>
+	{pages.map(docPage =>
+	  <li class="flex items-center">
+	    <svg
+	      width="3"
+	      height="24"
+	      viewBox="0 -9 3 24"
+	      class="inline-block mr-2 text-slate-400 overflow-visible group-hover:text-slate-600"
+	    >
+	      <path
+		d="M0 0L3 3L0 6"
+		fill="none"
+		stroke="currentColor"
+		stroke-width="1.5"
+		stroke-linecap="round" />
+	    </svg>
+	    <a href={`/docs/${docPage.slug}`} class="hover:text-slate-900">
+	      {docPage.title}
+	    </a>
+	  </li>
+	)}
+      </ul>
+    ))}
+  </div>
 </aside>
