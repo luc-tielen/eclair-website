@@ -1,5 +1,7 @@
 ---
 title: Language reference
+section: Language
+order: 1
 ---
 
 import CodeBlock from "../../components/CodeBlock.tsx";
@@ -168,7 +170,7 @@ This is possible via _extern definitions_ (also called _user-defined functions_)
 This helps keep the language small while still being extendable.
 
 User-defined functions do not [ground](/docs/grounding) any of their arguments,
-but they *do* ground their return value if all arguments were also grounded.
+but they _do_ ground their return value if all arguments were also grounded.
 
 Extern definitions are declared in Eclair via the `@extern` keyword, followed
 by the name of the function and one or more arguments, possibly followed by a

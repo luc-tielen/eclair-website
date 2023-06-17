@@ -1,5 +1,7 @@
 ---
 title: Eclair runtime API
+section: Runtime
+order: 1
 ---
 
 import CodeBlock from "../../components/CodeBlock.tsx";
@@ -35,7 +37,7 @@ you first initialize the runtime. This can be done by invoking the
 <CodeBlock language="c" code={`
 struct program;
 
-struct program* eclair_program_init();
+struct program\* eclair_program_init();
 `}/>
 
 The function returns an opaque pointer (a "handle" to the Eclair program). The

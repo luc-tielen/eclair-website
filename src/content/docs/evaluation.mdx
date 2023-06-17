@@ -1,5 +1,7 @@
 ---
 title: Query evaluation
+section: Runtime
+order: 3
 ---
 
 import CodeBlock from "../../components/CodeBlock.tsx";
@@ -184,18 +186,18 @@ project (2, 3) into edge
 project (1, 2) into edge
 
 search edge as edge0 do
-project (edge0[0], edge0[1]) into reachable
+   project (edge0[0], edge0[1]) into reachable
 
 merge reachable delta_reachable
 
 loop do
 purge new_reachable
 search edge as edge0 do
-search delta_reachable as delta_reachable1 do
-if (edge0[0], delta_reachable1[1]) ∉ reachable do
-if edge0[1] = delta_reachable1[0] do
-project (edge0[0], delta_reachable1[1]) into new_reachable
-exit if counttuples(new_reachable) = 0
+   search delta_reachable as delta_reachable1 do
+      if (edge0[0], delta_reachable1[1]) ∉ reachable do
+         if edge0[1] = delta_reachable1[0] do
+            project (edge0[0], delta_reachable1[1]) into new_reachable
+   exit if counttuples(new_reachable) = 0
 merge new_reachable reachable
 swap new_reachable delta_reachable
 `} />

@@ -1,5 +1,7 @@
 ---
 title: Grounding
+section: Language
+order: 3
 ---
 
 Unlike in most other languages, Eclair doesn't have explicit initialization of
