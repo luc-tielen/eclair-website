@@ -110,7 +110,7 @@ const TableOfContents = ({ toc, labels }: Props) => {
 
   return (
     <>
-      <h2 className="font-medium pb-2" id={onThisPageID}>
+      <h2 className="font-medium text-sm pb-2" id={onThisPageID}>
         {labels.onThisPage}
       </h2>
       <ul className="flex flex-col text-slate-700">
