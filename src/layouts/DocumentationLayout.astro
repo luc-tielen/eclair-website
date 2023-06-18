@@ -4,9 +4,18 @@ import LeftSideBar from "../components/LeftSideBar.astro";
 import RightSideBar from "../components/RightSideBar.astro";
 import NavBar from "../components/NavBar.astro"
 import Footer from "../components/Footer"
+import { getPreviousDoc, getNextDoc } from "../util/docs"
 
 const { frontmatter, headings } = Astro.props;
 
+const previousDoc = getPreviousDoc(
+  frontmatter.section,
+  frontmatter. order
+);
+const nextDoc = getNextDoc(
+  frontmatter.section,
+  frontmatter. order
+)
 ---
 
 <BaseLayout title={frontmatter.title}>
@@ -26,6 +35,14 @@ const { frontmatter, headings } = Astro.props;
             <article class="prose prose-code:before:hidden prose-code:after:hidden">
               <h1 id="overview">{frontmatter.title}</h1>
               <slot/>
+              <div class="flex flex-row justify-between pt-8">
+                {previousDoc
+                  ? <a href={previousDoc.link}><span class="inline-block rotate-180 pl-2">➜</span>{previousDoc.title}</a>
+                  : <span/>}
+                {nextDoc
+                  ? <a href={nextDoc.link}>{nextDoc.title}<span class="inline-block pl-2">➜</span></a>
+                  : <span/>}
+              </div>
             </article>
             <Footer/>
           </div>
