@@ -10,6 +10,7 @@ interface Props {
   labels: {
     onThisPage: string;
   };
+  collapseButton: JSX.Element | null;
 }
 
 const toDepthClass = (depth: number) => {
@@ -27,7 +28,7 @@ const toDepthClass = (depth: number) => {
   }
 };
 
-const TableOfContents = ({ toc, labels }: Props) => {
+const TableOfContents = ({ toc, labels, collapseButton = null }: Props) => {
   if (!toc[0]) return null;
 
   const [currentHeading, setCurrentHeading] = useState({
@@ -73,7 +74,7 @@ const TableOfContents = ({ toc, labels }: Props) => {
   const TableOfContentsItem = ({ heading }: { heading: TocItem }) => {
     const { depth, slug, text, children } = heading;
     return (
-      <li>
+      <li className="list-none">
         <a
           className={`flex items-center hover:text-slate-900 ${toDepthClass(
             depth
@@ -110,9 +111,18 @@ const TableOfContents = ({ toc, labels }: Props) => {
 
   return (
     <>
-      <h2 className="font-medium text-sm pb-2" id={onThisPageID}>
-        {labels.onThisPage}
-      </h2>
+      {collapseButton ? (
+        <div className="flex flex-row justify-center">
+          <h2 className="font-medium text-sm pb-2 pr-2" id={onThisPageID}>
+            {labels.onThisPage}
+          </h2>
+          {collapseButton}
+        </div>
+      ) : (
+        <h2 className="font-medium text-sm pb-2" id={onThisPageID}>
+          {labels.onThisPage}
+        </h2>
+      )}
       <ul className="flex flex-col text-slate-700">
         {toc.map((heading2) => (
           <TableOfContentsItem key={heading2.slug} heading={heading2} />
