@@ -20,37 +20,29 @@ const nextDoc = getNextDoc(
 ---
 
 <BaseLayout title={frontmatter.title}>
-  <div class="flex flex-col min-h-screen">
-    <header class="pt-2">
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="mx-auto max-w-3xl flex flex-col">
-          <NavBar/>
+	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 min-h-screen">
+    <main class="flex-grow min-h-screen">
+      <NavBar />
+      <div class="flex flex-row pt-8">
+        <LeftSideBar/>
+        <div class="flex-grow px-12 flex flex-col items-center">
+          <article class="prose prose-code:before:hidden prose-code:after:hidden">
+            <h1 id="overview">{frontmatter.title}</h1>
+            <MobileTableOfContents headings={headings} client:load/>
+            <slot/>
+            <div class="flex flex-row justify-between pt-8">
+              {previousDoc
+                ? <a href={previousDoc.link}><span class="inline-block rotate-180 pl-2">➜</span>{previousDoc.title}</a>
+                : <span/>}
+              {nextDoc
+                ? <a href={nextDoc.link}>{nextDoc.title}<span class="inline-block pl-2">➜</span></a>
+                : <span/>}
+            </div>
+          </article>
+          <Footer/>
         </div>
+        <RightSideBar headings={headings} />
       </div>
-    </header>
-    <div class="flex-grow">
-      <main>
-        <div class="flex flex-row pt-8">
-          <LeftSideBar/>
-          <div class="flex-grow px-12 flex flex-col items-center">
-            <article class="prose prose-code:before:hidden prose-code:after:hidden">
-              <h1 id="overview">{frontmatter.title}</h1>
-              <MobileTableOfContents headings={headings} client:load/>
-              <slot/>
-              <div class="flex flex-row justify-between pt-8">
-                {previousDoc
-                  ? <a href={previousDoc.link}><span class="inline-block rotate-180 pl-2">➜</span>{previousDoc.title}</a>
-                  : <span/>}
-                {nextDoc
-                  ? <a href={nextDoc.link}>{nextDoc.title}<span class="inline-block pl-2">➜</span></a>
-                  : <span/>}
-              </div>
-            </article>
-            <Footer/>
-          </div>
-          <RightSideBar headings={headings} />
-        </div>
-      </main>
-    </div>
-  </div>
+    </main>
+	</div>
 </BaseLayout>

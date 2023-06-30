@@ -11,6 +11,7 @@ const overview = "Overview";
     {
       headings && (
 	<TableOfContents
+	  collapseButton={null}
 	  toc={generateToc(headings, overview)}
 	  labels={{ onThisPage: "On this page" }}
 	/>

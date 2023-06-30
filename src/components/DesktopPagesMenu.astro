@@ -1,0 +1,29 @@
+---
+import { Icon } from "astro-icon";
+
+---
+
+<div class="hidden sm:flex items-center justify-between">
+  <div class="flex items-center gap-8 font-medium uppercase">
+    <a class="hover:underline" href="/">
+      Home
+    </a>
+    <a class="hover:underline" href="/docs">
+      Docs
+    </a>
+    <!--
+    TODO enable again once benchmarks are properly integrated
+    <a class="hover:underline" href="/performance">
+      Benchmarks
+    </a>
+    -->
+  </div>
+  <div class="flex gap-2">
+    <a href="https://github.com/luc-tielen/eclair-lang">
+      <Icon class="w-8 h-8" name="mdi:github" />
+    </a>
+    <a href="https://discord.gg/mC2arUrxKg">
+      <Icon class="w-8 h-8" name="ic:baseline-discord" />
+    </a>
+  </div>
+</div>

@@ -4,16 +4,16 @@ import NavBar from "../components/NavBar.astro"
 import Footer from "../components/Footer"
 
 const { title } = Astro.props;
+
+// Main page is less wide than other pages (max-w-3xl)
 ---
 
 <BaseLayout title={title}>
-	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-		<div class="mx-auto max-w-3xl flex flex-col min-h-screen">
-			<main class="pt-2 flex-grow">
-				<NavBar/>
-				<slot/>
-			</main>
-			<Footer/>
-		</div>
+	<NavBar/>
+	<div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+		<main class="flex-grow">
+			<slot/>
+		</main>
+		<Footer/>
 	</div>
 </BaseLayout>
