@@ -43,7 +43,7 @@ const MobileTableOfContents = ({ headings }: Props) => {
   }
 
   return (
-    <div className="flex flex-col items-start sm:hidden not-prose pb-8">
+    <div className="flex flex-col items-start lg:hidden not-prose pb-8">
       {collapsed ? (
         <div className="flex flex-row justify-center">
           <h2

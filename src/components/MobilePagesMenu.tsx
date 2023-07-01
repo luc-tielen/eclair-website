@@ -23,7 +23,7 @@ const MobilePagesMenu = ({
   const [isCollapsed, setCollapsed] = useState(true);
   return (
     <>
-      <div className="flex sm:hidden justify-between items-center font-medium uppercase">
+      <div className="w-full flex lg:hidden justify-between items-center font-medium uppercase">
         <div className="flex flex-row items-center gap-2">
           {showLogo ? (
             <a href="/">
