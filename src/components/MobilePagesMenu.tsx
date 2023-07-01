@@ -1,25 +1,15 @@
 import { useState } from "react";
+import { docPagesGroupedBySection } from "../util/docs";
 import logo from "../images/small_logo.png";
-
-type DocPage = {
-  title: string;
-  slug: string;
-};
 
 // Icons need to passed from astro, not importable in react
 type Props = {
   showLogo: boolean;
   discordIcon?: JSX.Element;
   githubIcon?: JSX.Element;
-  docPages: DocPage[];
 };
 
-const MobilePagesMenu = ({
-  showLogo,
-  discordIcon,
-  githubIcon,
-  docPages,
-}: Props) => {
+const MobilePagesMenu = ({ showLogo, discordIcon, githubIcon }: Props) => {
   const [isCollapsed, setCollapsed] = useState(true);
   return (
     <>
@@ -47,22 +37,37 @@ const MobilePagesMenu = ({
           className="fixed top-12 bottom-0 left-0 right-0 overflow-y-auto bg-white divide-y divide-gray-100"
         >
           <li className="flex justify-between px-6 py-4 hover:underline">
-            <a href="/docs">Docs</a>
+            <a
+              href="/docs"
+              className="text-blue-600 hover:text-blue-800 visited:text-purple-600"
+            >
+              Docs
+            </a>
           </li>
           {/* TODO
           <li className="flex justify-between py-4 hover:underline">
             <a href="/performance">Benchmarks</a>
           </li>
           */}
-          {docPages.map((docPage, i) => (
-            <li
-              className="flex justify-between py-4 pl-6 pr-6"
-              key={`page-${i}`}
-            >
-              <a href={`/docs/${docPage.slug}`} className="pl-4">
-                {docPage.title}
-              </a>
-            </li>
+          {docPagesGroupedBySection.map(([section, docPages], i) => (
+            <div key={`${section}-${i}`} className="pl-8 pr-6 py-4">
+              <h2 className="pb-2">{section}</h2>
+              <ul role="list">
+                {docPages.map((docPage, j) => (
+                  <li
+                    className="text-sm py-2 hover:underline"
+                    key={`${section}-page-${j}`}
+                  >
+                    <a
+                      href={`/docs/${docPage.slug}`}
+                      className="pl-4 text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                    >
+                      {docPage.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
         </ul>
       )}
