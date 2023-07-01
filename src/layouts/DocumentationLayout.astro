@@ -11,22 +11,22 @@ const { frontmatter, headings } = Astro.props;
 
 const previousDoc = getPreviousDoc(
   frontmatter.section,
-  frontmatter. order
+  frontmatter.order
 );
 const nextDoc = getNextDoc(
   frontmatter.section,
-  frontmatter. order
-)
+  frontmatter.order
+);
 ---
 
 <BaseLayout title={frontmatter.title}>
+  <NavBar />
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 min-h-screen">
-    <main class="flex-grow min-h-screen">
-      <NavBar />
+    <main>
       <div class="flex flex-row pt-8">
         <LeftSideBar/>
-        <div class="flex-grow px-12 flex flex-col items-center">
-          <article class="prose prose-code:before:hidden prose-code:after:hidden">
+        <div class="sm:px-12 flex flex-col items-center">
+          <article class="prose max-w-none sm:prose-sm md:prose-base lg:prose-lg xl:prose-xl prose-code:before:hidden prose-code:after:hidden">
             <h1 id="overview">{frontmatter.title}</h1>
             <MobileTableOfContents headings={headings} client:load/>
             <slot/>

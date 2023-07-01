@@ -113,13 +113,19 @@ const TableOfContents = ({ toc, labels, collapseButton = null }: Props) => {
     <>
       {collapseButton ? (
         <div className="flex flex-row justify-center">
-          <h2 className="font-medium text-sm pb-2 pr-2" id={onThisPageID}>
+          <h2
+            className="font-medium text-sm pb-2 pr-2 whitespace-nowrap"
+            id={onThisPageID}
+          >
             {labels.onThisPage}
           </h2>
           {collapseButton}
         </div>
       ) : (
-        <h2 className="font-medium text-sm pb-2" id={onThisPageID}>
+        <h2
+          className="font-medium text-sm pb-2 whitespace-nowrap"
+          id={onThisPageID}
+        >
           {labels.onThisPage}
         </h2>
       )}

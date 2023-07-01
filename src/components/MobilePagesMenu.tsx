@@ -12,7 +12,7 @@ const MobilePagesMenu = ({ showLogo, discordIcon, githubIcon }: Props) => {
   const [isCollapsed, setCollapsed] = useState(true);
   // <div className="bg-blue-200 fixed mt-0 min-w-full">
   return (
-    <div className="mt-2">
+    <>
       <div className="flex sm:hidden justify-between items-center font-medium uppercase">
         <div className="flex flex-row items-center gap-2">
           {showLogo ? (
@@ -47,7 +47,7 @@ const MobilePagesMenu = ({ showLogo, discordIcon, githubIcon }: Props) => {
           {/* TODO doc pages */}
         </ul>
       )}
-    </div>
+    </>
   );
 };
 

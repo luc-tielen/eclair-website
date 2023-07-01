@@ -9,13 +9,13 @@ const title = "Eclair docs";
 ---
 
 <BaseLayout title={title}>
+  <NavBar/>
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col min-h-screen">
-    <main class="flex-grow">
-      <NavBar/>
+    <main class="grow shrink">
       <div class="flex flex-row pt-8 sm:pr-24 md:pr-36 lg:pr-48">
         <LeftSideBar/>
-        <div class="flex-grow px-12 flex flex-col items-center">
-          <article class="prose prose-code:before:hidden prose-code:after:hidden">
+        <div class="px-2 sm:px-12 flex flex-col items-center">
+          <article class="prose sm:prose-sm md:prose-base lg:prose-lg xl:prose-xl prose-code:before:hidden prose-code:after:hidden">
             <h1 id="overview">Documentation</h1>
             <p>
               Welcome to the documentation for the Eclair programming language!

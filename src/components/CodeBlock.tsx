@@ -104,9 +104,13 @@ const toLanguage = (str: (typeof SUPPORTED_LANGUAGES)[number]) => {
 const CodeBlock = ({ language, code }: CodeBlockProps) => {
   const ast = highlightHast(code.trim(), toLanguage(language)) as AST;
   return (
-    <pre className="bg-[#fafafa] p-4 rounded-md shadow-md">
-      <code className={`language-${language}`}>{renderAST(ast)}</code>
-    </pre>
+    <div className="w-full">
+      <pre className="not-prose max-w-prose overflow-x-auto p-4 rounded-md shadow-md bg-[#fafafa]">
+        <code className={`not-prose language-${language}`}>
+          {renderAST(ast)}
+        </code>
+      </pre>
+    </div>
   );
 };
 
