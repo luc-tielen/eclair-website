@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { docPagesGroupedBySection } from "../util/docs";
 import logo from "../images/small_logo.png";
 
 // Icons need to passed from astro, not importable in react
@@ -7,9 +6,15 @@ type Props = {
   showLogo: boolean;
   discordIcon?: JSX.Element;
   githubIcon?: JSX.Element;
+  docPagesGroupedBySection: [string, { title: string; slug: string }[]][];
 };
 
-const MobilePagesMenu = ({ showLogo, discordIcon, githubIcon }: Props) => {
+const MobilePagesMenu = ({
+  showLogo,
+  discordIcon,
+  githubIcon,
+  docPagesGroupedBySection,
+}: Props) => {
   const [isCollapsed, setCollapsed] = useState(true);
   return (
     <>

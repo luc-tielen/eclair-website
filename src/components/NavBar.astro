@@ -2,13 +2,14 @@
 import { Icon } from "astro-icon";
 import DesktopPagesMenu from "./DesktopPagesMenu.astro";
 import MobilePagesMenu from "./MobilePagesMenu";
+import { docPagesGroupedBySection } from "../util/docs";
 ---
 
 <div class="sticky top-0 bg-white w-full z-30">
   <div class="mx-auto max-w-3xl">
     <nav class="mx-auto max-w-3xl px-4 py-2 sm:px-6 lg:px-8">
       <DesktopPagesMenu />
-      <MobilePagesMenu showLogo={Astro.url.pathname !== "/"} client:load>
+      <MobilePagesMenu showLogo={Astro.url.pathname !== "/"} docPagesGroupedBySection={docPagesGroupedBySection} client:load>
         <span slot="github-icon"><Icon class="w-8 h-8" name="mdi:github" /></span>
         <span slot="discord-icon"><Icon class="w-8 h-8" name="ic:baseline-discord" /></span>
       </MobilePagesMenu>
