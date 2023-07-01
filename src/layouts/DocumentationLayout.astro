@@ -32,11 +32,17 @@ const nextDoc = getNextDoc(
             <slot/>
             <div class="flex flex-row justify-between pt-8">
               {previousDoc
-                ? <a href={previousDoc.link}><span class="inline-block rotate-180 pl-2">➜</span>{previousDoc.title}</a>
-                : <span/>}
+                ? <div class="flex flex-row items-center">
+                    <span class="inline-block rotate-180 pl-2">➜</span>
+                    <a href={previousDoc.link}>{previousDoc.title}</a>
+                  </div>
+                : <div/>}
               {nextDoc
-                ? <a href={nextDoc.link}>{nextDoc.title}<span class="inline-block pl-2">➜</span></a>
-                : <span/>}
+                ? <div class="flex flex-row items-center text-right">
+                    <a href={nextDoc.link}>{nextDoc.title}</a>
+                    <span class="inline-block pl-2">➜</span>
+                  </div>
+                : <div/>}
             </div>
           </article>
           <Footer/>
@@ -44,5 +50,5 @@ const nextDoc = getNextDoc(
         <RightSideBar headings={headings} />
       </div>
     </main>
-	</div>
+  </div>
 </BaseLayout>
