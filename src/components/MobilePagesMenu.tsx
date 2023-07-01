@@ -1,16 +1,26 @@
 import { useState } from "react";
 import logo from "../images/small_logo.png";
 
+type DocPage = {
+  title: string;
+  slug: string;
+};
+
 // Icons need to passed from astro, not importable in react
 type Props = {
   showLogo: boolean;
   discordIcon?: JSX.Element;
   githubIcon?: JSX.Element;
+  docPages: DocPage[];
 };
 
-const MobilePagesMenu = ({ showLogo, discordIcon, githubIcon }: Props) => {
+const MobilePagesMenu = ({
+  showLogo,
+  discordIcon,
+  githubIcon,
+  docPages,
+}: Props) => {
   const [isCollapsed, setCollapsed] = useState(true);
-  // <div className="bg-blue-200 fixed mt-0 min-w-full">
   return (
     <>
       <div className="flex sm:hidden justify-between items-center font-medium uppercase">
@@ -34,17 +44,26 @@ const MobilePagesMenu = ({ showLogo, discordIcon, githubIcon }: Props) => {
       {isCollapsed ? null : (
         <ul
           role="list"
-          className="z-10 fixed top-12 bottom-0 left-0 right-0 bg-white divide-y divide-gray-100 uppercase"
+          className="fixed top-12 bottom-0 left-0 right-0 overflow-y-auto bg-white divide-y divide-gray-100"
         >
           <li className="flex justify-between px-6 py-4 hover:underline">
             <a href="/docs">Docs</a>
           </li>
           {/* TODO
-          <li className="flex justify-between py-5 hover:underline">
+          <li className="flex justify-between py-4 hover:underline">
             <a href="/performance">Benchmarks</a>
           </li>
           */}
-          {/* TODO doc pages */}
+          {docPages.map((docPage, i) => (
+            <li
+              className="flex justify-between py-4 pl-6 pr-6"
+              key={`page-${i}`}
+            >
+              <a href={`/docs/${docPage.slug}`} className="pl-4">
+                {docPage.title}
+              </a>
+            </li>
+          ))}
         </ul>
       )}
     </>
