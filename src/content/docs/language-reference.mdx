@@ -283,8 +283,8 @@ some arguments in a fact:
 @def person(name: string, age: u32).
 @def person_name(name: string).
 
-person*name(name) :-
-person(name, *).
+person_name(name) :-
+  person(name, _).
 `
 } />
 
@@ -398,8 +398,8 @@ The snippet below showcases how you can use arithmetic operators:
   code={`
 rule(x + y) :-
   fact1(x),
-  fact2(y + 5 * 7),
-  y = (1 + 8) / 3 * 4.
+  fact2(y + 5 \* 7),
+  y = (1 + 8) / 3 \* 4.
 `}
 />
 
@@ -420,10 +420,10 @@ some comments:
 `
 // A single line comment
 
-/*
+/\*
 A comment
 spanning
 multiple lines.
-*/
+\*/
 `
 } />

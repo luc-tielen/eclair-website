@@ -60,8 +60,8 @@ function declarations somewhere in the final LLVM IR:
   language="llvm"
   code={`
 // NOTE: LLVM doesn't care about signedness, only about the size of each value
-declare external ccc i1 @my_constraint(%symbol_table*, i32, i32)
-declare external ccc i32 @my_function(%symbol_table*, i32)
+declare external ccc i1 @my_constraint(%symbol_table\*, i32, i32)
+declare external ccc i32 @my_function(%symbol_table\*, i32)
 `}
 />
 
@@ -72,8 +72,8 @@ In C the generated IR would be equivalent to:
   code={`
 struct symbol_table;
 
-extern bool my_constraint(struct symbol_table*, uint32_t, uint32_t);
-extern uint32_t my_function(struct symbol_table*, uint32_t);
+extern bool my_constraint(struct symbol_table\*, uint32_t, uint32_t);
+extern uint32_t my_function(struct symbol_table\*, uint32_t);
 `}
 />
 

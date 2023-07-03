@@ -191,7 +191,7 @@ Eclair program using the `eclair_bindings` and `eclair_bindings_derive` crates:
 extern crate eclair_bindings;
 extern crate eclair_bindings_derive;
 
-use eclair_bindings::*;
+use eclair_bindings::\*;
 use eclair_bindings_derive::fact;
 
 // Path is a struct used as a handle for the Eclair program.
@@ -359,7 +359,7 @@ const { instance: wasmInstance } = await WebAssembly.instantiateStreaming(
 // care of resource cleanup as well.
 const results = withEclair(wasmInstance, memory, (handle) => {
   // Next we define what the Eclair program looks like.
-  // Important: This has to match *exactly* with how you defined it
+  // Important: This has to match \*exactly\* with how you defined it
   // in Eclair, otherwise you will get unexpected results!
   const edge = fact('edge', INPUT, [U32, U32]);
   const reachable = fact('reachable', OUTPUT, [U32, U32]);
@@ -419,42 +419,42 @@ from C:
 struct program;
 
 // The low-level Eclair API is accessed via extern definitions
-extern struct program* eclair_program_init();
-extern void eclair_program_destroy(struct program*);
-extern void eclair_program_run(struct program*);
+extern struct program\* eclair_program_init();
+extern void eclair_program_destroy(struct program\*);
+extern void eclair_program_run(struct program\*);
 extern void eclair_add_facts(
-  struct program*,
+  struct program\*,
   uint32_t fact_type,
-  uint32_t* data,
+  uint32_t\* data,
   size_t fact_count
 );
 extern void eclair_add_fact(
-  struct program*,
+  struct program\*,
   uint32_t fact_type,
-  uint32_t* data
+  uint32_t\* data
 );
-extern uint32_t* eclair_get_facts(
-  struct program*,
+extern uint32_t\* eclair_get_facts(
+  struct program\*,
   uint32_t fact_type
 );
 extern uint32_t eclair_fact_count(
-  struct program*,
+  struct program\*,
   uint32_t fact_type
 );
-extern void eclair_free_buffer(uint32_t* data);
+extern void eclair_free_buffer(uint32_t\* data);
 extern uint32_t eclair_encode_string(
-  struct program*,
+  struct program\*,
   uint32_t length,
-  const char* str
+  const char\* str
 );
-extern struct symbol* eclair_decode_string(
-  struct program*,
+extern struct symbol\* eclair_decode_string(
+  struct program\*,
   uint32_t index
 );
 
-int main(int argc, char** argv)
+int main(int argc, char\*\* argv)
 {
-    struct program* prog = eclair_program_init();
+    struct program\* prog = eclair_program_init();
 
     // For each fact type, we need to retrieve the unique number
     // that Eclair uses to represent it.
@@ -468,7 +468,7 @@ int main(int argc, char** argv)
     // Adding facts:
 
     // Facts are stored in a flat, contiguous array.
-    // *NO* checks are made regarding size and fact count!
+    // \*NO\* checks are made regarding size and fact count!
     uint32_t data[] = {
         1, 2, // edge(1,2)
         2, 3  // edge(2,3)
@@ -484,8 +484,8 @@ int main(int argc, char** argv)
     );
 
     // Output data is again in a flat, contiguous array.
-    // *NO* checks are made regarding size and fact count!
-    uint32_t* data_out = eclair_get_facts(
+    // \*NO\* checks are made regarding size and fact count!
+    uint32_t\* data_out = eclair_get_facts(
       prog, reachable_fact_type
     );
 
@@ -493,7 +493,7 @@ int main(int argc, char** argv)
     for (uint32_t i = 0; i < fact_count; i++) {
       printf(
         "Reachable: (%d, %d)\\n",
-        data_out[i * 2], data_out[i * 2 + 1]
+        data_out[i \* 2], data_out[i \* 2 + 1]
       );
     }
 

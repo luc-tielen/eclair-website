@@ -52,15 +52,15 @@ or more facts:
 
 <CodeBlock language="c" code={`
 void eclair_add_fact(
-  struct program* program,
+  struct program\* program,
   uint32_t fact_type,
-  uint32_t* fact_data
+  uint32_t\* fact_data
 );
 
 void eclair_add_facts(
-  struct program* program,
+  struct program\* program,
   uint32_t fact_type,
-  uint32_t* fact_data,
+  uint32_t\* fact_data,
   uint32_t fact_count
 );
 `}/>
@@ -98,9 +98,9 @@ string and a pointer to a byte-array (Eclair assumes UTF-8 encoding):
 
 <CodeBlock language="c" code={`
 uint32_t eclair_encode_string(
-  struct program*,
+  struct program\*,
   uint32_t string_length,
-  const char* string_data
+  const char\* string_data
 );
 `}/>
 
@@ -118,7 +118,7 @@ Once you have serialized all your input facts into Eclair, you can now run your
 program. This is done by invoking the `eclair_program_run` function:
 
 <CodeBlock language="c" code={`
-void eclair_program_run(struct program*);
+void eclair_program_run(struct program\*);
 `}/>
 
 This will run the Eclair Datalog program from start to end and calculate all
@@ -133,16 +133,16 @@ returned array of data. The functions related to deserialization are the followi
 
 <CodeBlock language="c" code={`
 uint32_t eclair_fact_count(
-  struct program*,
+  struct program\*,
   uint32_t fact_type
 );
 
-uint32_t* eclair_get_facts(
-  struct program*,
+uint32_t\* eclair_get_facts(
+  struct program\*,
   uint32_t fact_type
 );
 
-void eclair_free_buffer(uint32_t* data);
+void eclair_free_buffer(uint32_t\* data);
 `}/>
 
 `eclair_fact_count` returns the total amount of facts returned for a relation,
@@ -156,7 +156,7 @@ results in the host language:
 
 <CodeBlock language="c" code={`
 uint32_t fact_count = eclair_fact_count(program, fact_type);
-uint32_t* data = eclair_get_facts(program, fact_Type);
+uint32_t\* data = eclair_get_facts(program, fact_type);
 
 for (uint32_t i = 0; i < fact_count; i++) {
    // Process each fact in the array here.
@@ -173,11 +173,11 @@ underlying string byte-array. The signature of this function is as follows:
 <CodeBlock language="c" code={`
 struct symbol {
   uint32_t length;
-  const char* data;
+  const char\* data;
 };
 
-struct symbol* eclair_decode_string(
-  struct program*,
+struct symbol\* eclair_decode_string(
+  struct program\*,
   uint32_t string_index
 );
 `}/>
@@ -198,7 +198,7 @@ manual memory management under the hood.
 Eclair provides a single function for this:
 
 <CodeBlock language="c" code={`
-void eclair_program_destroy(struct program*);
+void eclair_program_destroy(struct program\*);
 `} />
 
 Calling this function will free up any memory still in use by Eclair, so that
@@ -213,8 +213,8 @@ functions are exposed as `eclair_malloc` and `eclair_free` and have the same
 function signatures as the libc counterpart:
 
 <CodeBlock language="c" code={`
-void* eclair_malloc(uint32_t num_bytes);
-void  eclair_free(void* pointer);
+void\* eclair_malloc(uint32_t num_bytes);
+void  eclair_free(void\* pointer);
 `}/>
 
 

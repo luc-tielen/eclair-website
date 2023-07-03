@@ -52,7 +52,7 @@ The simplest example of a non-recursive rule is a rule with a single clause:
 @def b(u32, u32) input.
 
 a(x) :-
-b(x, \_).
+  b(x, \_).
 `} />
 
 To evaluate the rule in the above example, Eclair will first search for all
@@ -68,8 +68,8 @@ following code snippet:
 @def c(u32, u32) input.
 
 a(x, z) :-
-b(x, y),
-c(y, z).
+  b(x, y),
+  c(y, z).
 `} />
 
 In order to find all facts for relation `a`, Eclair first has to find all facts
@@ -98,8 +98,8 @@ code:
 @def reachable(u32, u32).
 
 reachable(x, z) :-
-edge(x, y),
-reachable(y, z).
+  edge(x, y),
+  reachable(y, z).
 `} />
 
 In order to evaluate this rule, Eclair will have to first have to find all
@@ -144,12 +144,12 @@ In the snippet below, the code would be evaluated in the following order:
 
 // Step 3
 reachable(x, z) :-
-edge(x, y),
-reachable(y, z).
+  edge(x, y),
+  reachable(y, z).
 
 // Step 2
 reachable(x, y) :-
-edge(x, y).
+  edge(x, y).
 
 // Step 1
 edge(1, 2).
@@ -193,11 +193,11 @@ merge reachable delta_reachable
 loop do
 purge new_reachable
 search edge as edge0 do
-   search delta_reachable as delta_reachable1 do
-      if (edge0[0], delta_reachable1[1]) ∉ reachable do
-         if edge0[1] = delta_reachable1[0] do
-            project (edge0[0], delta_reachable1[1]) into new_reachable
-   exit if counttuples(new_reachable) = 0
+  search delta_reachable as delta_reachable1 do
+    if (edge0[0], delta_reachable1[1]) ∉ reachable do
+      if edge0[1] = delta_reachable1[0] do
+        project (edge0[0], delta_reachable1[1]) into new_reachable
+  exit if counttuples(new_reachable) = 0
 merge new_reachable reachable
 swap new_reachable delta_reachable
 `} />
