@@ -37,7 +37,7 @@ interface Props {
 }
 
 const MobileTableOfContents = ({ headings }: Props) => {
-  const [collapsed, setCollapsed] = useState(true);
+  const [collapsed, setCollapsed] = useState(false);
   if (!headings) {
     return null;
   }
@@ -45,35 +45,39 @@ const MobileTableOfContents = ({ headings }: Props) => {
   return (
     <div className="flex flex-col items-start lg:hidden not-prose pb-8">
       {collapsed ? (
-        <div className="flex flex-row justify-center">
+        <button
+          className="text-sm flex flex-row justify-center items-center"
+          type="button"
+          onClick={() => {
+            setCollapsed(false);
+          }}
+        >
           <h2
             className="font-medium text-sm pb-2 pr-2"
             id="on-this-page-heading"
           >
             Table of contents
           </h2>
-          <button
-            className="text-sm"
-            type="button"
-            onClick={() => {
-              setCollapsed(false);
-            }}
-          >
-            <ArrowIcon />
-          </button>
-        </div>
+          <ArrowIcon />
+        </button>
       ) : (
         <TableOfContents
           toc={generateToc(headings, overview)}
           labels={{ onThisPage: "Table of contents" }}
-          collapseButton={
+          customHeader={
             <button
-              className="text-sm"
+              className="text-sm flex flex-row justify-center"
               type="button"
               onClick={() => {
                 setCollapsed(true);
               }}
             >
+              <h2
+                className="font-medium text-sm pb-2 pr-2 whitespace-nowrap"
+                id="on-this-page-heading"
+              >
+                Table of contents
+              </h2>
               <ArrowIcon rotated />
             </button>
           }

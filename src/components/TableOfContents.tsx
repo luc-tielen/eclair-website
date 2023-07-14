@@ -10,7 +10,7 @@ interface Props {
   labels: {
     onThisPage: string;
   };
-  collapseButton: JSX.Element | null;
+  customHeader: JSX.Element | null;
 }
 
 const toDepthClass = (depth: number) => {
@@ -28,7 +28,7 @@ const toDepthClass = (depth: number) => {
   }
 };
 
-const TableOfContents = ({ toc, labels, collapseButton = null }: Props) => {
+const TableOfContents = ({ toc, labels, customHeader = null }: Props) => {
   if (!toc[0]) return null;
 
   const [currentHeading, setCurrentHeading] = useState({
@@ -111,16 +111,8 @@ const TableOfContents = ({ toc, labels, collapseButton = null }: Props) => {
 
   return (
     <>
-      {collapseButton ? (
-        <div className="flex flex-row justify-center">
-          <h2
-            className="font-medium text-sm pb-2 pr-2 whitespace-nowrap"
-            id={onThisPageID}
-          >
-            {labels.onThisPage}
-          </h2>
-          {collapseButton}
-        </div>
+      {customHeader ? (
+        customHeader
       ) : (
         <h2
           className="font-medium text-sm pb-2 whitespace-nowrap"
