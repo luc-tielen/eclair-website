@@ -1,0 +1,44 @@
+---
+title: Introduction to Datalog
+section: Getting started
+order: 3
+---
+
+If you have mostly been working with "mainstream programming languages", Eclair
+(and Datalog in general) might look foreign to you in terms of both the syntax
+and how these languages work under the hood. If this is the case, don't worry!
+Datalog is a very minimal language and can be learned quickly.
+
+Below are some links to introductory articles that explain some of the
+foundational concepts and ideas that Datalog is based on. One thing to note is
+that because there are _several_ variants of Datalog, the syntax used in these
+articles might differ from Eclair's syntax, but the ideas stay the same. If
+there is a big difference compared to how Eclair works, this will be pointed
+out.
+
+- The [Wikipedia entry for Datalog](https://en.wikipedia.org/wiki/Datalog)
+  gives a good introduction to what Datalog is, the semantics of the language
+  and how results are calculated. Note that Eclair handles queries differently:
+  rules need to be marked as [outputs](/docs/language-reference/#type-definitions)
+  for Eclair to compute and return the results.
+- [Introduction to Datalog](https://x775.net/2019/03/18/Introduction-to-Datalog.html)
+  is a great blogpost that explains many of the ideas in Datalog step by step
+  with several examples. Keep in mind though that in Eclair facts and rules
+  need to be explicitly marked if they are used as an
+  [input or output](/docs/language-reference/#type-definitions).
+- Chapters 12 to 15 of [Foundation of Databases (a.k.a. Alice's book)](http://webdam.inria.fr/Alice/)
+  focus on Datalog. It gives a more theoretical foundation and formalizes the
+  concepts used in the language.
+- [Guide for writing Datalog fact extractors](https://luctielen.com/posts/guide_for_writing_datalog_fact_extractors/)
+  is a blogpost written by Luc Tielen, the creator of Eclair. The guide is focused on
+  how to prepare a dataset for analysis with Soufflé Datalog, but the same
+  approach works for Eclair as well.
+- [Static analysis using Haskell and Datalog](https://luctielen.com/posts/static_analysis_using_haskell_and_datalog/)
+  is another tutorial on Luc's blog. This post focuses again on doing analysis
+  with Soufflé, but you can do the same for Eclair if you make use of the
+  [eclair-haskell library](https://github.com/luc-tielen/eclair-haskell).
+  (The code will almost be exactly the same on the Haskell side!)
+
+Do you know of a good resource that is not in the list above?
+[Submit an issue on Github](https://github.com/luc-tielen/eclair-website/issues/new)
+and it will be added!
